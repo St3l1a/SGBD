@@ -245,6 +245,12 @@ exec dbms_stats.delete_table_stats(ownname => 'GIISGBD101', tabname => 'PELICULA
 */
 
 
+
+
+
+
+
+
 /**********************************************************************************
 *
 *                                    EJERCICIO 2
@@ -280,15 +286,16 @@ AND P.OID = X.PELI;
 /*2. Obtenir per a cadascuna d'elles el seu pla d'execució.
     a. Existeix alguna contradicció entre els plans d'execució i els continguts de les taules?*/
 
+//CONSULTA 1:
+
 EXPLAIN PLAN FOR
    SELECT *
    FROM PELICULAS
    WHERE ANYO > 1992;
     
-SELECT plan_table_output
+SELECT *
 FROM 
-    table(DBMS_XPLAN.DISPLAY('PLAN_TABLE',
-    NULL,'TYPICAL'));
+    table(DBMS_XPLAN.DISPLAY);
 
 /*
 -------------------------------------------------------------------------------
@@ -305,16 +312,19 @@ Note
    - dynamic statistics used: dynamic sampling (level=2)
    - SQL plan baseline "SQL_PLAN_37ncmpadunta7d6672d41" used for this statement
 */
+
+
+//CONSULTA 2:
+
 EXPLAIN PLAN FOR
 SELECT *
 FROM PELICULAS P, ACTUACION ACT
 WHERE P.OID = ACT.PELI
 AND ANYO > 1992;
 
-SELECT plan_table_output
+SELECT *
 FROM 
-    table(DBMS_XPLAN.DISPLAY('PLAN_TABLE',
-    NULL,'TYPICAL'));
+    table(DBMS_XPLAN.DISPLAY);
     
 /*
 ---------------------------------------------------------------------------------------
@@ -337,6 +347,8 @@ Note
    - dynamic statistics used: dynamic sampling (level=2)
    - SQL plan baseline "SQL_PLAN_5rbfp05f7uk3m7c4a039a" used for this statement
 */
+
+//CONSULTA 3:
 EXPLAIN PLAN FOR
 SELECT P.*
 FROM ACTORES A, ACTUACION X, PELICULAS P
@@ -344,10 +356,9 @@ WHERE A.NOM = 'Loy, Myrna'
 AND A.OID = X.ACTOR
 AND P.OID = X.PELI;
 
-SELECT plan_table_output
+SELECT *
 FROM 
-    table(DBMS_XPLAN.DISPLAY('PLAN_TABLE',
-    NULL,'TYPICAL'));
+    table(DBMS_XPLAN.DISPLAY);
     
 /*
 ----------------------------------------------------------------------------------------------
@@ -375,8 +386,7 @@ Note
    - dynamic statistics used: dynamic sampling (level=2)
    - SQL plan baseline "SQL_PLAN_4z5x6suxn6hpc21f1959c" used for this statement
 */
-    --Si, la suma de los tiempos del plan de ejecución no coincide con los tiempos transcurridos
-
+    --Si, la suma de los tiempos del plan de ejecución no coincide con los tiempos transcurridos y tampoco coinciden las filas
 
 
 
@@ -400,10 +410,9 @@ SELECT *
 FROM PELICULAS
 WHERE ANYO > 1992;
 
-SELECT plan_table_output
+SELECT *
 FROM 
-    table(DBMS_XPLAN.DISPLAY('PLAN_TABLE',
-    NULL,'TYPICAL'));
+    table(DBMS_XPLAN.DISPLAY);
     
 /*
 Plan hash value: 2378278331
@@ -424,7 +433,7 @@ Note
 -----
    - SQL plan baseline "SQL_PLAN_37ncmpadunta7d6672d41" used for this statement
 
-Consulta 1: Hay menos filas 1999 antes habia 2232. Bytes es menor 409K antes 473.
+Consulta 1: Hay menos filas 1999 antes habia 2232. Bytes es menor 409K antes 473K.
 El coste es el mismo. No aparece el mensaje anterior - dynamic sampling used for this statement
 */
 
@@ -434,10 +443,9 @@ FROM PELICULAS P, ACTUACION ACT
 WHERE P.OID = ACT.PELI
 AND ANYO > 1992;
 
-SELECT plan_table_output
+SELECT *
 FROM 
-    table(DBMS_XPLAN.DISPLAY('PLAN_TABLE',
-    NULL,'TYPICAL'));
+    table(DBMS_XPLAN.DISPLAY);
     
 /*
 Plan hash value: 3982339754
@@ -462,6 +470,7 @@ Note
    - SQL plan baseline "SQL_PLAN_5rbfp05f7uk3m7c4a039a" used for this statement
 Consulta 2: Hay menos filas 2235 antes habia 2771. Bytes es menor 409K antes 473.
 El coste disminuye de 170 a 155.
+No aparece el mensaje anterior - dynamic sampling used for this statement+
 */
 
 EXPLAIN PLAN FOR
@@ -471,10 +480,9 @@ WHERE A.NOM = 'Loy, Myrna'
 AND A.OID = X.ACTOR
 AND P.OID = X.PELI;
 
-SELECT plan_table_output
+SELECT *
 FROM 
-    table(DBMS_XPLAN.DISPLAY('PLAN_TABLE',
-    NULL,'TYPICAL'));
+    table(DBMS_XPLAN.DISPLAY);
     
 /*
 Plan hash value: 3447177501
@@ -503,126 +511,7 @@ Note
 -----
    - SQL plan baseline "SQL_PLAN_4z5x6suxn6hpc21f1959c" used for this statement
 
-CONSULTA 3: Las filas disminuyen de 9 a 1 y el coste disminuye de 80 a 70 
+CONSULTA 3: Las filas disminuyen de 9 a 1 y el coste disminuye de 80 a 70
+No aparece el mensaje anterior - dynamic sampling used for this statement 
 */
 
-
-/**********************************************************************************
-*
-*                                    EJERCICIO 3
-*
-**********************************************************************************/
-
-exec dbms_stats.delete_table_stats(ownname => 'GIISGBD104', tabname => 'ACTORES');
-exec dbms_stats.delete_table_stats(ownname => 'GIISGBD104', tabname => 'ACTUACION');
-exec dbms_stats.delete_table_stats(ownname => 'GIISGBD104', tabname => 'PELICULAS');
-
---1. Obtenir per a cadascuna d'elles el seu pla d'execució.
-
-//CONSULTA 1: 
-EXPLAIN PLAN FOR
-SELECT * FROM PELICULAS WHERE ANYO=1920;
-
-SELECT plan_table_output
-FROM 
-    table(DBMS_XPLAN.DISPLAY('PLAN_TABLE',
-    NULL,'TYPICAL'));
-    
-/*
--------------------------------------------------------------------------------
-| Id  | Operation         | Name      | Rows  | Bytes | Cost (%CPU)| Time     |
--------------------------------------------------------------------------------
-|   0 | SELECT STATEMENT  |           |    70 | 15960 |   102   (0)| 00:00:01 |
-|*  1 |  TABLE ACCESS FULL| PELICULAS |    70 | 15960 |   102   (0)| 00:00:01 |
--------------------------------------------------------------------------------
- 
-Predicate Information (identified by operation id):
----------------------------------------------------
- 
-   1 - filter("ANYO"=1920)
- 
-Note
------
-   - dynamic statistics used: dynamic sampling (level=2)
-*/
-
-//CONSULTA 2:
-EXPLAIN PLAN FOR
-SELECT * FROM PELICULAS WHERE ANYO<1920;
-
-SELECT plan_table_output
-FROM 
-    table(DBMS_XPLAN.DISPLAY('PLAN_TABLE',
-    NULL,'TYPICAL'));
-
-/*
--------------------------------------------------------------------------------
-| Id  | Operation         | Name      | Rows  | Bytes | Cost (%CPU)| Time     |
--------------------------------------------------------------------------------
-|   0 | SELECT STATEMENT  |           |   482 |   107K|   102   (0)| 00:00:01 |
-|*  1 |  TABLE ACCESS FULL| PELICULAS |   482 |   107K|   102   (0)| 00:00:01 |
--------------------------------------------------------------------------------
- 
-Predicate Information (identified by operation id):
----------------------------------------------------
- 
-   1 - filter("ANYO"<1920)
- 
-Note
------
-   - dynamic statistics used: dynamic sampling (level=2)
-*/
-
-//CONSULTA 3
-EXPLAIN PLAN FOR
-SELECT * FROM PELICULAS WHERE ANYO>1920;
-
-SELECT plan_table_output
-FROM 
-    table(DBMS_XPLAN.DISPLAY('PLAN_TABLE',
-    NULL,'TYPICAL'));
-
-/*
--------------------------------------------------------------------------------
-| Id  | Operation         | Name      | Rows  | Bytes | Cost (%CPU)| Time     |
--------------------------------------------------------------------------------
-|   0 | SELECT STATEMENT  |           | 11077 |  2466K|   102   (0)| 00:00:01 |
-|*  1 |  TABLE ACCESS FULL| PELICULAS | 11077 |  2466K|   102   (0)| 00:00:01 |
--------------------------------------------------------------------------------
- 
-Predicate Information (identified by operation id):
----------------------------------------------------
- 
-   1 - filter("ANYO">1920)
- 
-Note
------
-   - dynamic statistics used: dynamic sampling (level=2)
-*/
-
-//CONSULTA 4
-EXPLAIN PLAN FOR
-SELECT * FROM PELICULAS WHERE ANYO<>1920;
-
-SELECT plan_table_output
-FROM 
-    table(DBMS_XPLAN.DISPLAY('PLAN_TABLE',
-    NULL,'TYPICAL'));
-
-/*
--------------------------------------------------------------------------------
-| Id  | Operation         | Name      | Rows  | Bytes | Cost (%CPU)| Time     |
--------------------------------------------------------------------------------
-|   0 | SELECT STATEMENT  |           | 11558 |  2573K|   102   (0)| 00:00:01 |
-|*  1 |  TABLE ACCESS FULL| PELICULAS | 11558 |  2573K|   102   (0)| 00:00:01 |
--------------------------------------------------------------------------------
- 
-Predicate Information (identified by operation id):
----------------------------------------------------
- 
-   1 - filter("ANYO"<>1920)
- 
-Note
------
-   - dynamic statistics used: dynamic sampling (level=2)
-*/
