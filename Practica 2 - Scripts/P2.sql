@@ -519,7 +519,7 @@ exec dbms_stats.delete_table_stats(ownname => 'GIISGBD104', tabname => 'PELICULA
 
 --1. Obtenir per a cadascuna d'elles el seu pla d'execució.
 
-//CONSULTA 1: 
+--CONSULTA 1: 
 EXPLAIN PLAN FOR
 SELECT * FROM PELICULAS WHERE ANYO=1920;
 
@@ -546,7 +546,7 @@ Note
    - dynamic statistics used: dynamic sampling (level=2)
 */
 
-//CONSULTA 2:
+--CONSULTA 2:
 EXPLAIN PLAN FOR
 SELECT * FROM PELICULAS WHERE ANYO<1920;
 
@@ -573,7 +573,7 @@ Note
    - dynamic statistics used: dynamic sampling (level=2)
 */
 
-//CONSULTA 3
+--CONSULTA 3
 EXPLAIN PLAN FOR
 SELECT * FROM PELICULAS WHERE ANYO>1920;
 
@@ -600,7 +600,7 @@ Note
    - dynamic statistics used: dynamic sampling (level=2)
 */
 
-//CONSULTA 4
+--CONSULTA 4
 EXPLAIN PLAN FOR
 SELECT * FROM PELICULAS WHERE ANYO<>1920;
 
@@ -626,3 +626,442 @@ Note
 -----
    - dynamic statistics used: dynamic sampling (level=2)
 */
+
+--2.Generar les estadístiques corresponents i tornar a obtenir el pla d'execució per a cadascuna d'elles
+exec dbms_stats.gather_table_stats(ownname => 'GIISGBD101', tabname => 'PELICULAS',cascade => TRUE, force => TRUE);
+--Procedimiento PL/SQL terminado correctamente.
+
+--2.a)
+--CONSULTA 1:
+EXPLAIN PLAN FOR
+SELECT * FROM PELICULAS WHERE ANYO=1920;
+
+SELECT plan_table_output
+FROM 
+    table(DBMS_XPLAN.DISPLAY('PLAN_TABLE',
+    NULL,'TYPICAL'));
+/*
+Plan hash value: 2378278331
+ 
+-------------------------------------------------------------------------------
+| Id  | Operation         | Name      | Rows  | Bytes | Cost (%CPU)| Time     |
+-------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT  |           |    47 |  9870 |   102   (0)| 00:00:01 |
+|*  1 |  TABLE ACCESS FULL| PELICULAS |    47 |  9870 |   102   (0)| 00:00:01 |
+-------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   1 - filter("ANYO"=1920)
+*/
+--CONSULTA 2:
+EXPLAIN PLAN FOR
+SELECT * FROM PELICULAS WHERE ANYO<1920;
+
+SELECT plan_table_output
+FROM 
+    table(DBMS_XPLAN.DISPLAY('PLAN_TABLE',
+    NULL,'TYPICAL'));
+
+/*
+Plan hash value: 2378278331
+ 
+-------------------------------------------------------------------------------
+| Id  | Operation         | Name      | Rows  | Bytes | Cost (%CPU)| Time     |
+-------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT  |           |   450 | 94500 |   102   (0)| 00:00:01 |
+|*  1 |  TABLE ACCESS FULL| PELICULAS |   450 | 94500 |   102   (0)| 00:00:01 |
+-------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   1 - filter("ANYO"<1920)
+*/
+
+--CONSULTA 3
+EXPLAIN PLAN FOR
+SELECT * FROM PELICULAS WHERE ANYO>1920;
+
+SELECT plan_table_output
+FROM 
+    table(DBMS_XPLAN.DISPLAY('PLAN_TABLE',
+    NULL,'TYPICAL'));
+
+/*
+Plan hash value: 2378278331
+ 
+-------------------------------------------------------------------------------
+| Id  | Operation         | Name      | Rows  | Bytes | Cost (%CPU)| Time     |
+-------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT  |           | 10686 |  2191K|   102   (0)| 00:00:01 |
+|*  1 |  TABLE ACCESS FULL| PELICULAS | 10686 |  2191K|   102   (0)| 00:00:01 |
+-------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   1 - filter("ANYO">1920)
+*/
+
+--CONSULTA 4
+EXPLAIN PLAN FOR
+SELECT * FROM PELICULAS WHERE ANYO<>1920;
+
+SELECT plan_table_output
+FROM 
+    table(DBMS_XPLAN.DISPLAY('PLAN_TABLE',
+    NULL,'TYPICAL'));
+/*
+Plan hash value: 2378278331
+ 
+-------------------------------------------------------------------------------
+| Id  | Operation         | Name      | Rows  | Bytes | Cost (%CPU)| Time     |
+-------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT  |           | 11135 |  2283K|   102   (0)| 00:00:01 |
+|*  1 |  TABLE ACCESS FULL| PELICULAS | 11135 |  2283K|   102   (0)| 00:00:01 |
+-------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   1 - filter("ANYO"<>1920)
+*/
+
+--Observamos que los planes de ejecucion no cambian porque anyo no tiene índice, pero si se observa que el numero de filas disminuye en todas las consultas.
+
+--3. Crear l'índex IDX_ANYO ON PELICULAS (ANYO), generar les estadístiques adequades i obtenir de nou el pla d'execució per a totes les consultes
+CREATE INDEX IDX_ANYO
+ON PELICULAS (ANYO);
+
+--Volver a generar las estadísticas
+exec dbms_stats.gather_table_stats(ownname => 'GIISGBD101', tabname => 'PELICULAS',cascade => TRUE, force => TRUE);
+--Procedimiento PL/SQL terminado correctamente.
+
+--CONSULTA 1:
+EXPLAIN PLAN FOR
+SELECT * FROM PELICULAS WHERE ANYO=1920;
+
+SELECT plan_table_output
+FROM 
+    table(DBMS_XPLAN.DISPLAY('PLAN_TABLE',
+    NULL,'TYPICAL'));
+/*
+Plan hash value: 717746877
+ 
+-------------------------------------------------------------------------------------------------
+| Id  | Operation                           | Name      | Rows  | Bytes | Cost (%CPU)| Time     |
+-------------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT                    |           |    47 |  9870 |    37   (0)| 00:00:01 |
+|   1 |  TABLE ACCESS BY INDEX ROWID BATCHED| PELICULAS |    47 |  9870 |    37   (0)| 00:00:01 |
+|*  2 |   INDEX RANGE SCAN                  | IDX_ANYO  |    47 |       |     1   (0)| 00:00:01 |
+-------------------------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   2 - access("ANYO"=1920)
+*/
+--CONSULTA 2:
+EXPLAIN PLAN FOR
+SELECT * FROM PELICULAS WHERE ANYO<1920;
+
+SELECT plan_table_output
+FROM 
+    table(DBMS_XPLAN.DISPLAY('PLAN_TABLE',
+    NULL,'TYPICAL'));
+
+/*
+Plan hash value: 2378278331
+ 
+-------------------------------------------------------------------------------
+| Id  | Operation         | Name      | Rows  | Bytes | Cost (%CPU)| Time     |
+-------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT  |           |   450 | 94500 |   102   (0)| 00:00:01 |
+|*  1 |  TABLE ACCESS FULL| PELICULAS |   450 | 94500 |   102   (0)| 00:00:01 |
+-------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   1 - filter("ANYO"<1920)
+*/
+
+--CONSULTA 3
+EXPLAIN PLAN FOR
+SELECT * FROM PELICULAS WHERE ANYO>1920;
+
+SELECT plan_table_output
+FROM 
+    table(DBMS_XPLAN.DISPLAY('PLAN_TABLE',
+    NULL,'TYPICAL'));
+
+/*
+Plan hash value: 2378278331
+ 
+-------------------------------------------------------------------------------
+| Id  | Operation         | Name      | Rows  | Bytes | Cost (%CPU)| Time     |
+-------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT  |           | 10686 |  2191K|   102   (0)| 00:00:01 |
+|*  1 |  TABLE ACCESS FULL| PELICULAS | 10686 |  2191K|   102   (0)| 00:00:01 |
+-------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   1 - filter("ANYO">1920)
+*/
+
+--CONSULTA 4
+EXPLAIN PLAN FOR
+SELECT * FROM PELICULAS WHERE ANYO<>1920;
+
+SELECT plan_table_output
+FROM 
+    table(DBMS_XPLAN.DISPLAY('PLAN_TABLE',
+    NULL,'TYPICAL'));
+/*
+Plan hash value: 2378278331
+ 
+-------------------------------------------------------------------------------
+| Id  | Operation         | Name      | Rows  | Bytes | Cost (%CPU)| Time     |
+-------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT  |           | 11135 |  2283K|   102   (0)| 00:00:01 |
+|*  1 |  TABLE ACCESS FULL| PELICULAS | 11135 |  2283K|   102   (0)| 00:00:01 |
+-------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   1 - filter("ANYO"<>1920)
+*/
+
+/* 3.a) Analitzar les diferències trobades i explicar-les
+Observamos que ahora el plan de ejecucion de la consulta 1 ha cambiado porque ahora utiliza el índice creado.
+En las otras consultas no hay cambios en los planes de ejecucion porque no se benefician del índice creado.
+*/
+
+/*4. Ja hauràs interpretat que l’índex IDX_ANYO s’utilitza sempre que el nombre de registres 
+recuperats siga inferior a una determinada quantitat. Fes les proves necessàries per a 
+determinar un llindar inferior i superior d’aquesta quantitat. No cal que poses a la memòria 
+totes les proves que has fet, però indica què proves son i quins valors llindars has trobat.
+*/
+--Para determinar el umbral he realizado varias consultas con anyo <= X, donde X es el año que varía en cada consulta:
+--con anyo <= 1913 el plan de ejecucion utiliza el índice, tiene 129 filas y tiene un coste de 100 
+--con anyo <= 1914 el plan de ejecucion ya no utiliza el índice, tiene 187 filas y tiene un coste de 102
+--por los tanto el umbral inferior está entre 129 y 187 filas
+
+--5. Eliminar l’índex creat
+DROP INDEX IDX_ANYO; 
+
+
+/**********************************************************************************
+*
+*                                    EJERCICIO 4
+*
+**********************************************************************************/
+--@crear_tablas.sql;
+insert into actores 
+select * from GIISGBD.ACTORES_DATOS1;
+-- Resultado: 2.343 filas insertadas.
+
+insert into actuacion 
+select * from GIISGBD.ACTUACION_DATOS1;
+-- Resultado: 2.500 filas insertadas.
+
+insert into PELICULAS
+select * from GIISGBD.PELICULAS_DATOS1;
+-- Resultado: 105 filas insertadas.
+
+--1. Generar les estadístiques adequades (per a les taules que intervenen en les consultes). 
+exec dbms_stats.gather_table_stats(ownname => 'GIISGBD101', tabname => 'ACTORES',cascade => TRUE, force => TRUE);
+--Procedimiento PL/SQL terminado correctamente.
+
+--2.Obtenir el pla d'execució d'ambdues consultes. 
+EXPLAIN PLAN FOR
+SELECT * FROM ACTORES WHERE SEXO='H';
+
+SELECT plan_table_output
+FROM 
+    table(DBMS_XPLAN.DISPLAY('PLAN_TABLE',
+    NULL,'TYPICAL'));
+/*
+Plan hash value: 2765877494
+ 
+-----------------------------------------------------------------------------
+| Id  | Operation         | Name    | Rows  | Bytes | Cost (%CPU)| Time     |
+-----------------------------------------------------------------------------
+|   0 | SELECT STATEMENT  |         |  1172 |   123K|    13   (0)| 00:00:01 |
+|*  1 |  TABLE ACCESS FULL| ACTORES |  1172 |   123K|    13   (0)| 00:00:01 |
+-----------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   1 - filter("SEXO"='H')
+ 
+Note
+-----
+   - SQL plan baseline "SQL_PLAN_5sagc315vquw0c4135987" used for this statement
+*/
+EXPLAIN PLAN FOR
+SELECT COUNT(*) FROM ACTORES WHERE SEXO='H';
+
+SELECT plan_table_output
+FROM 
+    table(DBMS_XPLAN.DISPLAY('PLAN_TABLE',
+    NULL,'TYPICAL'));   
+/*
+Plan hash value: 3398582430
+ 
+------------------------------------------------------------------------------
+| Id  | Operation          | Name    | Rows  | Bytes | Cost (%CPU)| Time     |
+------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT   |         |     1 |     2 |    13   (0)| 00:00:01 |
+|   1 |  SORT AGGREGATE    |         |     1 |     2 |            |          |
+|*  2 |   TABLE ACCESS FULL| ACTORES |  1172 |  2344 |    13   (0)| 00:00:01 |
+------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   2 - filter("SEXO"='H')
+*/
+--3. Crear l'índex de tipus B-Tree IDX_SEXO ON ACTORES (SEXO) i generar les estadístiques adequades. 
+--como oracle crea por defecto los índices b-tree, no especificamos el tipo
+CREATE INDEX IDX_SEXO
+ON ACTORES (SEXO);
+
+exec dbms_stats.gather_table_stats(ownname => 'GIISGBD101', tabname => 'ACTORES',cascade => TRUE, force => TRUE);
+
+
+--4.Tornar a obtenir el pla d'execució de les consultes
+EXPLAIN PLAN FOR
+SELECT * FROM ACTORES WHERE SEXO='H';
+
+SELECT plan_table_output
+FROM 
+    table(DBMS_XPLAN.DISPLAY('PLAN_TABLE',
+    NULL,'TYPICAL'));
+    
+/*
+Plan hash value: 2765877494
+ 
+-----------------------------------------------------------------------------
+| Id  | Operation         | Name    | Rows  | Bytes | Cost (%CPU)| Time     |
+-----------------------------------------------------------------------------
+|   0 | SELECT STATEMENT  |         |  1382 |   145K|    13   (0)| 00:00:01 |
+|*  1 |  TABLE ACCESS FULL| ACTORES |  1382 |   145K|    13   (0)| 00:00:01 |
+-----------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   1 - filter("SEXO"='H')
+ 
+Note
+-----
+   - SQL plan baseline "SQL_PLAN_5sagc315vquw0c4135987" used for this statement
+*/
+
+EXPLAIN PLAN FOR
+SELECT COUNT(*) FROM ACTORES WHERE SEXO='H';
+
+SELECT plan_table_output
+FROM 
+    table(DBMS_XPLAN.DISPLAY('PLAN_TABLE',
+    NULL,'TYPICAL'));   
+    
+/*
+Plan hash value: 3805308972
+ 
+------------------------------------------------------------------------------
+| Id  | Operation         | Name     | Rows  | Bytes | Cost (%CPU)| Time     |
+------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT  |          |     1 |     2 |     3   (0)| 00:00:01 |
+|   1 |  SORT AGGREGATE   |          |     1 |     2 |            |          |
+|*  2 |   INDEX RANGE SCAN| IDX_SEXO |  1382 |  2764 |     3   (0)| 00:00:01 |
+------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   2 - access("SEXO"='H')
+*/
+    
+
+--5.  Eliminar l'índex creat en el pas 3, i crear un nou índex sobre el mateix camp de la mateixa taula, però aquesta vegada de tipus BITMAP, generant de nou les estadístiques adequades. 
+DROP INDEX IDX_SEXO; 
+
+CREATE BITMAP INDEX IDX_SEXO
+ON ACTORES (SEXO);
+
+exec dbms_stats.gather_table_stats(ownname => 'GIISGBD101', tabname => 'ACTORES',cascade => TRUE, force => TRUE);
+
+--6. Tornar a obtenir el pla d'execució de les consultes. 
+EXPLAIN PLAN FOR
+SELECT * FROM ACTORES WHERE SEXO='H';
+
+SELECT plan_table_output
+FROM 
+    table(DBMS_XPLAN.DISPLAY('PLAN_TABLE',
+    NULL,'TYPICAL'));
+    
+/*
+Plan hash value: 2765877494
+ 
+-----------------------------------------------------------------------------
+| Id  | Operation         | Name    | Rows  | Bytes | Cost (%CPU)| Time     |
+-----------------------------------------------------------------------------
+|   0 | SELECT STATEMENT  |         |  1382 |   145K|    13   (0)| 00:00:01 |
+|*  1 |  TABLE ACCESS FULL| ACTORES |  1382 |   145K|    13   (0)| 00:00:01 |
+-----------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   1 - filter("SEXO"='H')
+ 
+Note
+-----
+   - SQL plan baseline "SQL_PLAN_5sagc315vquw0c4135987" used for this statement
+*/
+
+EXPLAIN PLAN FOR
+SELECT COUNT(*) FROM ACTORES WHERE SEXO='H';
+
+SELECT plan_table_output
+FROM 
+    table(DBMS_XPLAN.DISPLAY('PLAN_TABLE',
+    NULL,'TYPICAL'));   
+    
+/*
+Plan hash value: 2453959698
+ 
+------------------------------------------------------------------------------------------
+| Id  | Operation                     | Name     | Rows  | Bytes | Cost (%CPU)| Time     |
+------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT              |          |     1 |     2 |     1   (0)| 00:00:01 |
+|   1 |  SORT AGGREGATE               |          |     1 |     2 |            |          |
+|   2 |   BITMAP CONVERSION COUNT     |          |  1382 |  2764 |     1   (0)| 00:00:01 |
+|*  3 |    BITMAP INDEX FAST FULL SCAN| IDX_SEXO |       |       |            |          |
+------------------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   3 - filter("SEXO"='H')
+*/
+
+--7. Analitzar les diferències trobades i justificar-les. 
+/*
+Para la primera consulta no hay diferencias en el plan de ejecucion, ya que el índice no se utiliza debido a que devuelve muchas filas.
+
+En la segunda consulta, si que se usan los índices porque mejoran el coste. Y con bitmap es aún más eficiente porque, el plan de ejecución 
+utiliza una conversión de mapa de bits para contar las filas que cumplen la condición y esto es más eficiente que un escaneo completo de la 
+tabla, especialmente en columnas con baja cardinalidad como sexo.
+*/
+--8. Eliminar l'índex creat.
+DROP INDEX IDX_SEXO; 
+    
