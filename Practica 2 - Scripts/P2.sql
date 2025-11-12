@@ -1438,29 +1438,31 @@ FROM GIISGBD.PELICULAS_BASE P,
  GIISGBD.ACTUACION_BASE ACT, GIISGBD.ACTORES_BASE A
 WHERE P.OID = ACT.PELI
  AND A.OID = ACT.ACTOR
- AND P.ANYO = 1980;
+ AND P.ANYO = 2000;
 
 SELECT * FROM table(DBMS_XPLAN.DISPLAY);
 
 /*
------------------------------------------------------------------------------------------------
-| Id  | Operation            | Name           | Rows  | Bytes |TempSpc| Cost (%CPU)| Time     |
------------------------------------------------------------------------------------------------
-|   0 | SELECT STATEMENT     |                | 19053 |  2437K|       |  8491   (1)| 00:00:01 |
-|   1 |  HASH UNIQUE         |                | 19053 |  2437K|  2736K|  8491   (1)| 00:00:01 |
-|*  2 |   HASH JOIN          |                | 19053 |  2437K|       |  7930   (1)| 00:00:01 |
-|*  3 |    HASH JOIN         |                | 19203 |   412K|       |  6530   (1)| 00:00:01 |
-|*  4 |     TABLE ACCESS FULL| PELICULAS_BASE |  1869 | 18690 |       |  1193   (1)| 00:00:01 |
-|   5 |     TABLE ACCESS FULL| ACTUACION_BASE |  1196K|    13M|       |  5334   (1)| 00:00:01 |
-|   6 |    TABLE ACCESS FULL | ACTORES_BASE   |   321K|    33M|       |  1399   (1)| 00:00:01 |
------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------
+| Id  | Operation                     | Name           | Rows  | Bytes | Cost (%CPU)| Time     |
+------------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT              |                |    25 |  3275 |  6557   (1)| 00:00:01 |
+|   1 |  HASH UNIQUE                  |                |    25 |  3275 |  6557   (1)| 00:00:01 |
+|   2 |   NESTED LOOPS                |                |    25 |  3275 |  6556   (1)| 00:00:01 |
+|   3 |    NESTED LOOPS               |                |    26 |  3275 |  6556   (1)| 00:00:01 |
+|*  4 |     HASH JOIN                 |                |    26 |   572 |  6530   (1)| 00:00:01 |
+|*  5 |      TABLE ACCESS FULL        | PELICULAS_BASE |     3 |    30 |  1193   (1)| 00:00:01 |
+|   6 |      TABLE ACCESS FULL        | ACTUACION_BASE |  1196K|    13M|  5334   (1)| 00:00:01 |
+|*  7 |     INDEX UNIQUE SCAN         | SYS_C0013134   |     1 |       |     0   (0)| 00:00:01 |
+|   8 |    TABLE ACCESS BY INDEX ROWID| ACTORES_BASE   |     1 |   109 |     1   (0)| 00:00:01 |
+------------------------------------------------------------------------------------------------
  
 Predicate Information (identified by operation id):
 ---------------------------------------------------
  
-   2 - access("A"."OID"="ACT"."ACTOR")
-   3 - access("P"."OID"="ACT"."PELI")
-   4 - filter("P"."ANYO"=1980)
+   4 - access("P"."OID"="ACT"."PELI")
+   5 - filter("P"."ANYO"=2000)
+   7 - access("A"."OID"="ACT"."ACTOR")
  
 Note
 -----
