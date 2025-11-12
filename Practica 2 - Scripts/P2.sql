@@ -1715,6 +1715,88 @@ Note
    - SQL plan baseline "SQL_PLAN_7mvm5unxcdxwk55478034" used for this statement
 */
 
+// AHORA PROBAMOS UN ÍNDICE SOBRE EL ATRIBUTO OID DE LA TABLA ACTORES_BASE Y OBSERVAMOS QUE EL COSTE NO VARIA POR 
+//QUE NO VALE LA PENA
+
+CREATE INDEX IDX_OID_BASE ON ACTORES_BASE(OID);
+
+EXPLAIN PLAN FOR
+SELECT A.NOM, P.TITULO, ACT.PAPEL, P.ANYO
+FROM ACTORES_BASE A, PELICULAS_BASE P,
+ ACTUACION_BASE ACT
+WHERE A.OID = ACT.ACTOR
+ AND P.OID = ACT.PELI
+ AND SEXO = 'H'
+ AND P.TITULO LIKE 'Lost%';
+ 
+SELECT * FROM table(DBMS_XPLAN.DISPLAY);
+/*
+--------------------------------------------------------------------------------------
+| Id  | Operation           | Name           | Rows  | Bytes | Cost (%CPU)| Time     |
+--------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT    |                |     6 |  2586 |  7933   (1)| 00:00:01 |
+|*  1 |  HASH JOIN          |                |     6 |  2586 |  7933   (1)| 00:00:01 |
+|*  2 |   HASH JOIN         |                |    11 |  3542 |  6532   (1)| 00:00:01 |
+|*  3 |    TABLE ACCESS FULL| PELICULAS_BASE |     1 |   210 |  1193   (1)| 00:00:01 |
+|   4 |    TABLE ACCESS FULL| ACTUACION_BASE |  1196K|   127M|  5336   (1)| 00:00:01 |
+|*  5 |   TABLE ACCESS FULL | ACTORES_BASE   |   160K|    16M|  1401   (1)| 00:00:01 |
+--------------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   1 - access("A"."OID"="ACT"."ACTOR")
+   2 - access("P"."OID"="ACT"."PELI")
+   3 - filter("P"."TITULO" LIKE 'Lost%')
+   5 - filter("SEXO"='H')
+ 
+Note
+-----
+   - SQL plan baseline "SQL_PLAN_7mvm5unxcdxwk55478034" used for this statement
+
+*/
+
+// AHORA PROBAMOS UN ÍNDICE SOBRE EL ATRIBUTO OID DE LA TABLA PELICULAS_BASE Y OBSERVAMOS QUE EL COSTE NO VARIA POR 
+//QUE NO VALE LA PENA
+
+CREATE INDEX IDX_OID_BASE ON PELICULAS_BASE(OID);
+
+EXPLAIN PLAN FOR
+SELECT A.NOM, P.TITULO, ACT.PAPEL, P.ANYO
+FROM ACTORES_BASE A, PELICULAS_BASE P,
+ ACTUACION_BASE ACT
+WHERE A.OID = ACT.ACTOR
+ AND P.OID = ACT.PELI
+ AND SEXO = 'H'
+ AND P.TITULO LIKE 'Lost%';
+ 
+SELECT * FROM table(DBMS_XPLAN.DISPLAY);
+
+/*
+--------------------------------------------------------------------------------------
+| Id  | Operation           | Name           | Rows  | Bytes | Cost (%CPU)| Time     |
+--------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT    |                |     7 |  3017 |  7933   (1)| 00:00:01 |
+|*  1 |  HASH JOIN          |                |     7 |  3017 |  7933   (1)| 00:00:01 |
+|*  2 |   HASH JOIN         |                |    11 |  3542 |  6532   (1)| 00:00:01 |
+|*  3 |    TABLE ACCESS FULL| PELICULAS_BASE |     1 |   210 |  1193   (1)| 00:00:01 |
+|   4 |    TABLE ACCESS FULL| ACTUACION_BASE |  1196K|   127M|  5336   (1)| 00:00:01 |
+|*  5 |   TABLE ACCESS FULL | ACTORES_BASE   |   202K|    21M|  1401   (1)| 00:00:01 |
+--------------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   1 - access("A"."OID"="ACT"."ACTOR")
+   2 - access("P"."OID"="ACT"."PELI")
+   3 - filter("P"."TITULO" LIKE 'Lost%')
+   5 - filter("SEXO"='H')
+ 
+Note
+-----
+   - SQL plan baseline "SQL_PLAN_7mvm5unxcdxwk55478034" used for this statement
+
+*/
 
 
 //CONSULTA 3: Creamos un índice en la tabla PELICULAS_BASE en el atributo TITULO 
