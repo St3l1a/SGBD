@@ -1064,4 +1064,499 @@ tabla, especialmente en columnas con baja cardinalidad como sexo.
 */
 --8. Eliminar l'índex creat.
 DROP INDEX IDX_SEXO; 
+
+
+/**********************************************************************************
+*
+*                                    EJERCICIO 5
+*
+**********************************************************************************/
+
+--1. Generar les estadístiques adequades
+
+exec dbms_stats.gather_table_stats(ownname=>'GIISGBD104',tabname=>'ACTORES', cascade=>true,force=>true);
+exec dbms_stats.gather_table_stats(ownname=>'GIISGBD104',tabname=>'ACTUACION', cascade=>true,force=>true);
+exec dbms_stats.gather_table_stats(ownname=>'GIISGBD104',tabname=>'PELICULAS', cascade=>true,force=>true);
+
+
+--Obtenir el pla d'execució de les 4 consultes.
+    --a. S'observa alguna diferència o similitud entre els plans? A què es deuen?
+//CONSULTA 1
+EXPLAIN PLAN FOR
+SELECT A.NOM, A.SEXO
+FROM GIISGBD.ACTORES_BASE A
+WHERE EXISTS (
+ SELECT *
+ FROM GIISGBD.PELICULAS_BASE P,
+ GIISGBD.ACTUACION_BASE ACT
+ WHERE P.OID = ACT.PELI
+ AND P.ANYO = 1980
+ AND A.OID = ACT.ACTOR);
+ 
+SELECT * FROM table(DBMS_XPLAN.DISPLAY);
+
+
+/*
+Plan hash value: 2277454862
+ 
+---------------------------------------------------------------------------------------
+| Id  | Operation            | Name           | Rows  | Bytes | Cost (%CPU)| Time     |
+---------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT     |                | 19203 |  2287K|  7930   (1)| 00:00:01 |
+|*  1 |  HASH JOIN RIGHT SEMI|                | 19203 |  2287K|  7930   (1)| 00:00:01 |
+|   2 |   VIEW               | VW_SQ_1        | 19203 |   243K|  6530   (1)| 00:00:01 |
+|*  3 |    HASH JOIN         |                | 19203 |   412K|  6530   (1)| 00:00:01 |
+|*  4 |     TABLE ACCESS FULL| PELICULAS_BASE |  1869 | 18690 |  1193   (1)| 00:00:01 |
+|   5 |     TABLE ACCESS FULL| ACTUACION_BASE |  1196K|    13M|  5334   (1)| 00:00:01 |
+|   6 |   TABLE ACCESS FULL  | ACTORES_BASE   |   321K|    33M|  1399   (1)| 00:00:01 |
+---------------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   1 - access("A"."OID"="ITEM_1")
+   3 - access("P"."OID"="ACT"."PELI")
+   4 - filter("P"."ANYO"=1980)
+
+*/
+
+//CONSULTA 2
+EXPLAIN PLAN FOR
+SELECT A.NOM, A.SEXO
+FROM GIISGBD.ACTORES_BASE A
+WHERE A.OID IN (
+ SELECT ACT.ACTOR
+ FROM GIISGBD.PELICULAS_BASE P,
+ GIISGBD.ACTUACION_BASE ACT
+ WHERE P.OID = ACT.PELI
+ AND P.ANYO = 1980);
+
+SELECT * FROM table(DBMS_XPLAN.DISPLAY);
+
+/*
+---------------------------------------------------------------------------------------
+| Id  | Operation            | Name           | Rows  | Bytes | Cost (%CPU)| Time     |
+---------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT     |                | 19203 |  2287K|  7930   (1)| 00:00:01 |
+|*  1 |  HASH JOIN RIGHT SEMI|                | 19203 |  2287K|  7930   (1)| 00:00:01 |
+|   2 |   VIEW               | VW_NSO_1       | 19203 |   243K|  6530   (1)| 00:00:01 |
+|*  3 |    HASH JOIN         |                | 19203 |   412K|  6530   (1)| 00:00:01 |
+|*  4 |     TABLE ACCESS FULL| PELICULAS_BASE |  1869 | 18690 |  1193   (1)| 00:00:01 |
+|   5 |     TABLE ACCESS FULL| ACTUACION_BASE |  1196K|    13M|  5334   (1)| 00:00:01 |
+|   6 |   TABLE ACCESS FULL  | ACTORES_BASE   |   321K|    33M|  1399   (1)| 00:00:01 |
+---------------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   1 - access("A"."OID"="ACTOR")
+   3 - access("P"."OID"="ACT"."PELI")
+   4 - filter("P"."ANYO"=1980)
+
+*/
+
+
+//CONSULTA 3
+EXPLAIN PLAN FOR
+SELECT A.NOM, A.SEXO
+FROM GIISGBD.ACTORES_BASE A
+WHERE A.OID = ANY (
+ SELECT ACT.ACTOR
+ FROM GIISGBD.PELICULAS_BASE P,
+ GIISGBD.ACTUACION_BASE ACT
+ WHERE P.OID = ACT.PELI
+ AND P.ANYO = 1980);
+
+SELECT * FROM table(DBMS_XPLAN.DISPLAY);
+
+/*
+---------------------------------------------------------------------------------------
+| Id  | Operation            | Name           | Rows  | Bytes | Cost (%CPU)| Time     |
+---------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT     |                | 19203 |  2287K|  7930   (1)| 00:00:01 |
+|*  1 |  HASH JOIN RIGHT SEMI|                | 19203 |  2287K|  7930   (1)| 00:00:01 |
+|   2 |   VIEW               | VW_NSO_1       | 19203 |   243K|  6530   (1)| 00:00:01 |
+|*  3 |    HASH JOIN         |                | 19203 |   412K|  6530   (1)| 00:00:01 |
+|*  4 |     TABLE ACCESS FULL| PELICULAS_BASE |  1869 | 18690 |  1193   (1)| 00:00:01 |
+|   5 |     TABLE ACCESS FULL| ACTUACION_BASE |  1196K|    13M|  5334   (1)| 00:00:01 |
+|   6 |   TABLE ACCESS FULL  | ACTORES_BASE   |   321K|    33M|  1399   (1)| 00:00:01 |
+---------------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   1 - access("A"."OID"="ACTOR")
+   3 - access("P"."OID"="ACT"."PELI")
+   4 - filter("P"."ANYO"=1980)
+
+*/
+
+//CONSULTA 4
+EXPLAIN PLAN FOR
+SELECT DISTINCT A.NOM, A.SEXO
+FROM GIISGBD.PELICULAS_BASE P,
+ GIISGBD.ACTUACION_BASE ACT, GIISGBD.ACTORES_BASE A
+WHERE P.OID = ACT.PELI
+ AND A.OID = ACT.ACTOR
+ AND P.ANYO = 1980;
+
+SELECT * FROM table(DBMS_XPLAN.DISPLAY);
+
+/*
+-----------------------------------------------------------------------------------------------
+| Id  | Operation            | Name           | Rows  | Bytes |TempSpc| Cost (%CPU)| Time     |
+-----------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT     |                | 19053 |  2437K|       |  8491   (1)| 00:00:01 |
+|   1 |  HASH UNIQUE         |                | 19053 |  2437K|  2736K|  8491   (1)| 00:00:01 |
+|*  2 |   HASH JOIN          |                | 19053 |  2437K|       |  7930   (1)| 00:00:01 |
+|*  3 |    HASH JOIN         |                | 19203 |   412K|       |  6530   (1)| 00:00:01 |
+|*  4 |     TABLE ACCESS FULL| PELICULAS_BASE |  1869 | 18690 |       |  1193   (1)| 00:00:01 |
+|   5 |     TABLE ACCESS FULL| ACTUACION_BASE |  1196K|    13M|       |  5334   (1)| 00:00:01 |
+|   6 |    TABLE ACCESS FULL | ACTORES_BASE   |   321K|    33M|       |  1399   (1)| 00:00:01 |
+-----------------------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   2 - access("A"."OID"="ACT"."ACTOR")
+   3 - access("P"."OID"="ACT"."PELI")
+   4 - filter("P"."ANYO"=1980)
+ 
+Note
+-----
+   - this is an adaptive plan
+
+*/
+
+/*
+RESPUESTA: 
+Las consultas 1, 2 y 3 acaban funcionando de la misma manera porque se interpretan 
+como equivalentes y por eso generan prácticamente el mismo plan. 
+La consulta 4 es muy similar pero al llevar DISTINCT debe quitar los duplicados
+y por eso cuesta un poco más.
+*/
+
+--3 Canviar el filtre del camp P.ANYO en totes les consultes al valor 2000. 
+--Obtenir de nou els plans d'execució de les 4 consultes.
+    --a. S'observa alguna diferència pel que fa als plans anteriors? Per què motiu?
     
+//CONSULTA 1
+EXPLAIN PLAN FOR
+SELECT A.NOM, A.SEXO
+FROM GIISGBD.ACTORES_BASE A
+WHERE EXISTS (
+ SELECT *
+ FROM GIISGBD.PELICULAS_BASE P,
+ GIISGBD.ACTUACION_BASE ACT
+ WHERE P.OID = ACT.PELI
+ AND P.ANYO = 2000
+ AND A.OID = ACT.ACTOR);
+ 
+SELECT * FROM table(DBMS_XPLAN.DISPLAY);
+
+
+/*
+-----------------------------------------------------------------------------------------------
+| Id  | Operation                    | Name           | Rows  | Bytes | Cost (%CPU)| Time     |
+-----------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT             |                |    26 |  3172 |  6557   (1)| 00:00:01 |
+|   1 |  NESTED LOOPS                |                |    26 |  3172 |  6557   (1)| 00:00:01 |
+|   2 |   NESTED LOOPS               |                |    26 |  3172 |  6557   (1)| 00:00:01 |
+|   3 |    VIEW                      | VW_SQ_1        |    26 |   338 |  6530   (1)| 00:00:01 |
+|   4 |     HASH UNIQUE              |                |    26 |   572 |            |          |
+|*  5 |      HASH JOIN               |                |    26 |   572 |  6530   (1)| 00:00:01 |
+|*  6 |       TABLE ACCESS FULL      | PELICULAS_BASE |     3 |    30 |  1193   (1)| 00:00:01 |
+|   7 |       TABLE ACCESS FULL      | ACTUACION_BASE |  1196K|    13M|  5334   (1)| 00:00:01 |
+|*  8 |    INDEX UNIQUE SCAN         | SYS_C0013134   |     1 |       |     0   (0)| 00:00:01 |
+|   9 |   TABLE ACCESS BY INDEX ROWID| ACTORES_BASE   |     1 |   109 |     1   (0)| 00:00:01 |
+-----------------------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   5 - access("P"."OID"="ACT"."PELI")
+   6 - filter("P"."ANYO"=2000)
+   8 - access("A"."OID"="ITEM_1")
+ 
+Note
+-----
+   - this is an adaptive plan
+
+*/
+
+//CONSULTA 2
+EXPLAIN PLAN FOR
+SELECT A.NOM, A.SEXO
+FROM GIISGBD.ACTORES_BASE A
+WHERE A.OID IN (
+ SELECT ACT.ACTOR
+ FROM GIISGBD.PELICULAS_BASE P,
+ GIISGBD.ACTUACION_BASE ACT
+ WHERE P.OID = ACT.PELI
+ AND P.ANYO = 2000);
+
+SELECT * FROM table(DBMS_XPLAN.DISPLAY);
+
+/*
+-----------------------------------------------------------------------------------------------
+| Id  | Operation                    | Name           | Rows  | Bytes | Cost (%CPU)| Time     |
+-----------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT             |                |    26 |  3172 |  6557   (1)| 00:00:01 |
+|   1 |  NESTED LOOPS                |                |    26 |  3172 |  6557   (1)| 00:00:01 |
+|   2 |   NESTED LOOPS               |                |    26 |  3172 |  6557   (1)| 00:00:01 |
+|   3 |    VIEW                      | VW_NSO_1       |    26 |   338 |  6530   (1)| 00:00:01 |
+|   4 |     HASH UNIQUE              |                |    26 |   572 |            |          |
+|*  5 |      HASH JOIN               |                |    26 |   572 |  6530   (1)| 00:00:01 |
+|*  6 |       TABLE ACCESS FULL      | PELICULAS_BASE |     3 |    30 |  1193   (1)| 00:00:01 |
+|   7 |       TABLE ACCESS FULL      | ACTUACION_BASE |  1196K|    13M|  5334   (1)| 00:00:01 |
+|*  8 |    INDEX UNIQUE SCAN         | SYS_C0013134   |     1 |       |     0   (0)| 00:00:01 |
+|   9 |   TABLE ACCESS BY INDEX ROWID| ACTORES_BASE   |     1 |   109 |     1   (0)| 00:00:01 |
+-----------------------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   5 - access("P"."OID"="ACT"."PELI")
+   6 - filter("P"."ANYO"=2000)
+   8 - access("A"."OID"="ACTOR")
+*/
+
+
+//CONSULTA 3
+EXPLAIN PLAN FOR
+SELECT A.NOM, A.SEXO
+FROM GIISGBD.ACTORES_BASE A
+WHERE A.OID = ANY (
+ SELECT ACT.ACTOR
+ FROM GIISGBD.PELICULAS_BASE P,
+ GIISGBD.ACTUACION_BASE ACT
+ WHERE P.OID = ACT.PELI
+ AND P.ANYO = 2000);
+
+SELECT * FROM table(DBMS_XPLAN.DISPLAY);
+
+/*
+-----------------------------------------------------------------------------------------------
+| Id  | Operation                    | Name           | Rows  | Bytes | Cost (%CPU)| Time     |
+-----------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT             |                |    26 |  3172 |  6557   (1)| 00:00:01 |
+|   1 |  NESTED LOOPS                |                |    26 |  3172 |  6557   (1)| 00:00:01 |
+|   2 |   NESTED LOOPS               |                |    26 |  3172 |  6557   (1)| 00:00:01 |
+|   3 |    VIEW                      | VW_NSO_1       |    26 |   338 |  6530   (1)| 00:00:01 |
+|   4 |     HASH UNIQUE              |                |    26 |   572 |            |          |
+|*  5 |      HASH JOIN               |                |    26 |   572 |  6530   (1)| 00:00:01 |
+|*  6 |       TABLE ACCESS FULL      | PELICULAS_BASE |     3 |    30 |  1193   (1)| 00:00:01 |
+|   7 |       TABLE ACCESS FULL      | ACTUACION_BASE |  1196K|    13M|  5334   (1)| 00:00:01 |
+|*  8 |    INDEX UNIQUE SCAN         | SYS_C0013134   |     1 |       |     0   (0)| 00:00:01 |
+|   9 |   TABLE ACCESS BY INDEX ROWID| ACTORES_BASE   |     1 |   109 |     1   (0)| 00:00:01 |
+-----------------------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   5 - access("P"."OID"="ACT"."PELI")
+   6 - filter("P"."ANYO"=2000)
+   8 - access("A"."OID"="ACTOR")
+ 
+Note
+-----
+   - this is an adaptive plan
+
+*/
+
+//CONSULTA 4
+EXPLAIN PLAN FOR
+SELECT DISTINCT A.NOM, A.SEXO
+FROM GIISGBD.PELICULAS_BASE P,
+ GIISGBD.ACTUACION_BASE ACT, GIISGBD.ACTORES_BASE A
+WHERE P.OID = ACT.PELI
+ AND A.OID = ACT.ACTOR
+ AND P.ANYO = 1980;
+
+SELECT * FROM table(DBMS_XPLAN.DISPLAY);
+
+/*
+-----------------------------------------------------------------------------------------------
+| Id  | Operation            | Name           | Rows  | Bytes |TempSpc| Cost (%CPU)| Time     |
+-----------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT     |                | 19053 |  2437K|       |  8491   (1)| 00:00:01 |
+|   1 |  HASH UNIQUE         |                | 19053 |  2437K|  2736K|  8491   (1)| 00:00:01 |
+|*  2 |   HASH JOIN          |                | 19053 |  2437K|       |  7930   (1)| 00:00:01 |
+|*  3 |    HASH JOIN         |                | 19203 |   412K|       |  6530   (1)| 00:00:01 |
+|*  4 |     TABLE ACCESS FULL| PELICULAS_BASE |  1869 | 18690 |       |  1193   (1)| 00:00:01 |
+|   5 |     TABLE ACCESS FULL| ACTUACION_BASE |  1196K|    13M|       |  5334   (1)| 00:00:01 |
+|   6 |    TABLE ACCESS FULL | ACTORES_BASE   |   321K|    33M|       |  1399   (1)| 00:00:01 |
+-----------------------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   2 - access("A"."OID"="ACT"."ACTOR")
+   3 - access("P"."OID"="ACT"."PELI")
+   4 - filter("P"."ANYO"=1980)
+ 
+Note
+-----
+   - this is an adaptive plan
+*/
+
+
+/*
+RESPUESTA: Si se observa una diferencia, el número de filas es menor, porque hay 
+muy pocos datos del año 2000 por lo que el coste es menor.
+
+*/
+
+/**********************************************************************************
+*
+*                                    EJERCICIO 6
+*
+**********************************************************************************/
+exec dbms_stats.delete_table_stats( ownname=>'GIISGBD104', tabname=>'ACTORES');
+exec dbms_stats.delete_table_stats( ownname=>'GIISGBD104', tabname=>'PELICULAS');
+exec dbms_stats.delete_table_stats( ownname=>'GIISGBD104', tabname=>'ACTUACION');
+
+
+--1. Generar les estadístiques adequades (per a les taules que intervenen en les consultes).
+
+exec dbms_stats.gather_table_stats(ownname=>'GIISGBD104',tabname=>'ACTORES', cascade=>true,force=>true);
+exec dbms_stats.gather_table_stats(ownname=>'GIISGBD104',tabname=>'ACTUACION', cascade=>true,force=>true);
+exec dbms_stats.gather_table_stats(ownname=>'GIISGBD104',tabname=>'PELICULAS', cascade=>true,force=>true);
+
+
+--2. Obtenir el pla d'execució d'ambdues consultes.
+
+//CONSULTA 1
+
+EXPLAIN PLAN FOR
+SELECT A.NOM, P.TITULO, ACT.PAPEL, P.ANYO
+FROM ACTORES A, PELICULAS P, ACTUACION ACT
+WHERE A.OID = ACT.ACTOR
+ AND P.OID = ACT.PELI
+ AND SEXO = 'H'
+ AND P.TITULO LIKE 'Lost%';
+ 
+SELECT * FROM table(DBMS_XPLAN.DISPLAY);
+
+/*
+---------------------------------------------------------------------------------------
+| Id  | Operation             | Name          | Rows  | Bytes | Cost (%CPU)| Time     |
+---------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT      |               |    12 |  5148 |    28   (0)| 00:00:01 |
+|*  1 |  HASH JOIN            |               |    12 |  5148 |    28   (0)| 00:00:01 |
+|   2 |   INDEX FAST FULL SCAN| SYS_C00379640 |  2500 |   270K|    12   (0)| 00:00:01 |
+|   3 |   MERGE JOIN CARTESIAN|               |  1172 |   363K|    16   (0)| 00:00:01 |
+|*  4 |    TABLE ACCESS FULL  | PELICULAS     |     1 |   210 |     3   (0)| 00:00:01 |
+|   5 |    BUFFER SORT        |               |  1172 |   123K|    13   (0)| 00:00:01 |
+|*  6 |     TABLE ACCESS FULL | ACTORES       |  1172 |   123K|    13   (0)| 00:00:01 |
+---------------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   1 - access("A"."OID"="ACT"."ACTOR" AND "P"."OID"="ACT"."PELI")
+   4 - filter("P"."TITULO" LIKE 'Lost%')
+   6 - filter("SEXO"='H')
+
+*/
+
+SELECT A.NOM, P.TITULO, ACT.PAPEL, P.ANYO
+FROM ACTORES A, PELICULAS P, ACTUACION ACT
+WHERE A.OID = ACT.ACTOR
+ AND P.OID = ACT.PELI
+ AND SEXO = 'H'
+ AND P.TITULO LIKE 'Lost%';
+
+-- 24 FILAS
+
+//CONSULTA 2
+
+EXPLAIN PLAN FOR
+SELECT A.NOM, P.TITULO, ACT.PAPEL, P.ANYO
+FROM ACTORES_BASE A, PELICULAS_BASE P,
+ ACTUACION_BASE ACT
+WHERE A.OID = ACT.ACTOR
+ AND P.OID = ACT.PELI
+ AND SEXO = 'H'
+ AND P.TITULO LIKE 'Lost%';
+ 
+SELECT * FROM table(DBMS_XPLAN.DISPLAY);
+
+/*
+---------------------------------------------------------------------------------------
+| Id  | Operation             | Name          | Rows  | Bytes | Cost (%CPU)| Time     |
+---------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT      |               |    12 |  5148 |    28   (0)| 00:00:01 |
+|*  1 |  HASH JOIN            |               |    12 |  5148 |    28   (0)| 00:00:01 |
+|   2 |   INDEX FAST FULL SCAN| SYS_C00379640 |  2500 |   270K|    12   (0)| 00:00:01 |
+|   3 |   MERGE JOIN CARTESIAN|               |  1172 |   363K|    16   (0)| 00:00:01 |
+|*  4 |    TABLE ACCESS FULL  | PELICULAS     |     1 |   210 |     3   (0)| 00:00:01 |
+|   5 |    BUFFER SORT        |               |  1172 |   123K|    13   (0)| 00:00:01 |
+|*  6 |     TABLE ACCESS FULL | ACTORES       |  1172 |   123K|    13   (0)| 00:00:01 |
+---------------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   1 - access("A"."OID"="ACT"."ACTOR" AND "P"."OID"="ACT"."PELI")
+   4 - filter("P"."TITULO" LIKE 'Lost%')
+   6 - filter("SEXO"='H')
+
+*/
+
+SELECT A.NOM, P.TITULO, ACT.PAPEL, P.ANYO
+FROM GIISGBD.ACTORES_BASE A, GIISGBD.PELICULAS_BASE P,
+ GIISGBD.ACTUACION_BASE ACT
+WHERE A.OID = ACT.ACTOR
+ AND P.OID = ACT.PELI
+ AND SEXO = 'H'
+ AND P.TITULO LIKE 'Lost%';
+
+-- 1135 FILAS
+
+
+EXPLAIN PLAN FOR
+SELECT A.NOM, P.TITULO, ACT.PAPEL, P.ANYO
+FROM ACTORES_BASE A, PELICULAS_BASE P,
+ ACTUACION_BASE ACT
+WHERE A.OID = ACT.ACTOR
+ AND P.OID = ACT.PELI
+ AND SEXO = 'H'
+ AND P.TITULO LIKE '%Empire%';
+ 
+SELECT * FROM table(DBMS_XPLAN.DISPLAY);
+
+/*
+---------------------------------------------------------------------------------------
+| Id  | Operation             | Name          | Rows  | Bytes | Cost (%CPU)| Time     |
+---------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT      |               |    12 |  5148 |    28   (0)| 00:00:01 |
+|*  1 |  HASH JOIN            |               |    12 |  5148 |    28   (0)| 00:00:01 |
+|   2 |   INDEX FAST FULL SCAN| SYS_C00379640 |  2500 |   270K|    12   (0)| 00:00:01 |
+|   3 |   MERGE JOIN CARTESIAN|               |  1172 |   363K|    16   (0)| 00:00:01 |
+|*  4 |    TABLE ACCESS FULL  | PELICULAS     |     1 |   210 |     3   (0)| 00:00:01 |
+|   5 |    BUFFER SORT        |               |  1172 |   123K|    13   (0)| 00:00:01 |
+|*  6 |     TABLE ACCESS FULL | ACTORES       |  1172 |   123K|    13   (0)| 00:00:01 |
+---------------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   1 - access("A"."OID"="ACT"."ACTOR" AND "P"."OID"="ACT"."PELI")
+   4 - filter("P"."TITULO" LIKE 'Lost%')
+   6 - filter("SEXO"='H')
+*/
+
+SELECT A.NOM, P.TITULO, ACT.PAPEL, P.ANYO
+FROM GIISGBD.ACTORES_BASE A, GIISGBD.PELICULAS_BASE P,
+ GIISGBD.ACTUACION_BASE ACT
+WHERE A.OID = ACT.ACTOR
+ AND P.OID = ACT.PELI
+ AND SEXO = 'H'
+ AND P.TITULO LIKE '%Empire%';
+--411 FILAS
+
+
+--3. Proposar les millores necessàries perquè les consultes s'executen de manera més eficient.
+//CONSULTA 1
+
