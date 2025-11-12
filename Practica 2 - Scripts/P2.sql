@@ -1838,6 +1838,7 @@ Predicate Information (identified by operation id):
 
 DROP INDEX IDX_TITULO;
 DROP INDEX IDX_TITULO_BASE;
+DROP INDEX IDX_OID_BASE;
 drop table ACTORES_BASE;
 drop table PELICULAS_BASE;
 drop table ACTUACION_BASE;
