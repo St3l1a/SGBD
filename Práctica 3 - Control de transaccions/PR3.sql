@@ -119,37 +119,80 @@ Identificar els problemes en les accions individuals i comentar els motius que l
 // TRANSACCIÓ 2.1
     /* 1)Crear un departament nou (amb les dades que es desitgen) amb codi 
         de departament 60*/
-    
+    SET TRANSACTION READ WRITE NAME '2.1';
+    INSERT INTO DEPT (DEPTNO, DNAME, LOC) VALUES (60, 'PRUEBA', 'VALENCIA');
+
+    /*
+    10	ACCOUNTING	NEW YORK
+    20	RESEARCH	DALLAS
+    30	SALES	CHICAGO
+    40	OPERATIONS	BOSTON
+    50	HHRR	LOS ANGELES
+    60	PRUEBA	VALENCIA
+    */
+
     /*2) Establir un punt de salvaguarda SP1*/
-    
+    SAVEPOINT SP1;
+
     /*3) Crear un empleat nou (amb les dades que es desitgen) amb codi d'empleat 9061 
         i assignat al departament 60*/
-    
+    INSERT INTO EMP (EMPNO, DEPTNO) VALUES (9061, 60);
+
+
     /*4)Crear un empleat nou (amb les dades que es desitgen) amb codi d'empleat 9062 
         i assignat al departament 60*/
     
+    INSERT INTO EMP (EMPNO, DEPTNO) VALUES (9062, 60);
+
     /*5)Crear un departament nou (amb les dades que es desitgen) amb codi de 
         departament 70)*/
-    
+    INSERT INTO DEPT (DEPTNO, DNAME, LOC) VALUES (70, 'PRUEBA2', 'VALENCIA2');
+
     /*6)Establir un punt de salvaguarda SP2*/
-    
+    SAVEPOINT SP2;
+
     /*7)Crear un empleat nou (amb les dades que es desitgen) amb codi d'empleat 9071 
         i assignat al departament 70*/
-    
+    INSERT INTO EMP (EMPNO, DEPTNO) VALUES (9071, 70);
+
     /*8)Crear un empleat nou (amb les dades que es desitgen) amb codi d'empleat 9071 
         i assignat al departament 70*/
-    
+    INSERT INTO EMP (EMPNO, DEPTNO) VALUES (9071, 70);
+
+    /*
+    Error que empieza en la línea: 7 del comando :
+    INSERT INTO EMP (EMPNO, DEPTNO) VALUES (9071, 70)
+    Informe de error -
+    ORA-00001: restricción única (GIISGBD104.PK_EMP) violada
+    */
+
+    -- Vemos que da error porque se vuelve a crear el mismo empleado con la misma clave primaria.
+
     /*9)Tornar al punt de salvaguarda SP2*/
-    
+    ROLLBACK TO SP2;
+
     /*10)Crear un empleat nou (amb les dades que es desitgen) amb codi d'empleat 9071 
         i assignat al departament 70*/
-    
+    INSERT INTO EMP (EMPNO, DEPTNO) VALUES (9071, 70);
+
     /*11)Tornar al punt de salvaguarda SP1*/
-    
+    ROLLBACK TO SP1;
+
     /*12)Crear un empleat nou (amb les dades que es desitgen) amb codi d'empleat 9071 
         i assignat al departament 70*/
-        
+    INSERT INTO EMP (EMPNO, DEPTNO) VALUES (9071, 70);
+
+    /*
+    Error que empieza en la línea: 7 del comando :
+    INSERT INTO EMP (EMPNO, DEPTNO) VALUES (9071, 70)
+    Informe de error -
+    ORA-02291: restricción de integridad (GIISGBD104.FK_DEPTNO) violada - 
+    clave principal no encontrada
+    */
+
+    -- Cuando hacemos ROLLBACK A SP1 el departamento 60 aún no se había creado y por eso da error
     /*13)Validar la transacció*/
+    COMMIT;
 
 
 /**********************************************************************************
@@ -168,39 +211,146 @@ Localitzar les diferències de tots dos procediments i indicar el motiu pel qual
 ************************************************************************************/
 
 // TRANSACCIÓ 3.1 (Phantom reads)
+
+-- COMMITTED - COMMITTED
     /*1A) Inici de transacció (establint el nivell d'aïllament sempre a READ COMMITTED)*/
+    SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
     /*2B) Inici de transacció (establint el nivell d'aïllament corresponent per als casos 1 
         i 2)*/
-    
+                                                                SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
     /*3A Inserir un registre en la taula de departaments amb codi 151 i nom ADVERTISING*/
-
+    INSERT INTO DEPT (DEPTNO, DNAME) VALUES (151, 'ADVERTISING');
     /*4B Contar el nombre de departaments*/
-
+                                                                SELECT COUNT(*) FROM DEPT;
+                                                                -- RESULTADO: 6
+                                                                
    /*5A) Contar el nombre de departaments*/ 
+    SELECT COUNT(*) FROM DEPT;
+    -- RESULTADO: 7
 
    /*6A) Validar la transacció*/
+    COMMIT;
 
    /*7B) Contar el nombre de departaments*/
+                                                                SELECT COUNT(*) FROM DEPT;
+                                                                -- RESULTADO: 7
 
    /*8B) Validar la transacció*/
+                                                                COMMIT;
    
    /*9B) Contar el nombre de departaments*/
+                                                                SELECT COUNT(*) FROM DEPT;
+                                                                -- RESULTADO: 7
+
+/*
+CONCLUSIÓN COMMITTED-COMMITTED:
+Hasta que la sesión A no se hace el commit, la sesión B no ve los cambios 
+realizados de la sesión A
+*/
+
+-- COMMITTED - SERIALIZABLE
+    /*1A) Inici de transacció (establint el nivell d'aïllament sempre a READ COMMITTED)*/
+    SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+    /*2B) Inici de transacció (establint el nivell d'aïllament corresponent per als casos 1 
+        i 2)*/
+                                                                SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+
+    /*3A Inserir un registre en la taula de departaments amb codi 151 i nom ADVERTISING*/
+    INSERT INTO DEPT (DEPTNO, DNAME) VALUES (151, 'ADVERTISING');
+    /*4B Contar el nombre de departaments*/
+                                                                SELECT COUNT(*) FROM DEPT;
+                                                                -- RESULTADO: 6
+                                                                
+   /*5A) Contar el nombre de departaments*/ 
+    SELECT COUNT(*) FROM DEPT;
+    -- RESULTADO: 7
+
+   /*6A) Validar la transacció*/
+    COMMIT;
+
+   /*7B) Contar el nombre de departaments*/
+                                                                SELECT COUNT(*) FROM DEPT;
+                                                                -- RESULTADO: 6
+
+   /*8B) Validar la transacció*/
+                                                                COMMIT;
+   
+   /*9B) Contar el nombre de departaments*/
+                                                                SELECT COUNT(*) FROM DEPT;
+                                                                -- RESULTADO: 7
+
+/*
+CONCLUSIÓN COMMITTED-SERIALIZABLE:
+Cuando se hace con serializable se ignora los cambios de otras transacciones incluso cuando hacen
+commit, por lo que en 7B se obtiene 6 y cuando termina la sesión B es cuando se ven los cambios 
+realizados por otras transacciones.
+*/
+
+
 
 // TRANSACCIÓ 3.2 (Nonrepeatable reads) 
+-- COMMITTED - COMMITTED
     /*1A) Inici de transacció (establint el nivell d'aïllament sempre a READ COMMITTED)*/
-
+    SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
     /*2B) Inici de transacció (establint el nivell d'aïllament corresponent per als 
         casos 1 i 2)*/
-    
+                                                            SET TRANSACTION ISOLATION LEVEL READ COMMITTED;   
     /*3B Seleccionar les dades del departament 151*/
-
+                                                            SELECT * FROM DEPT WHERE DEPTNO = 151;
+                                                            --151	ADVERTISING	 NULL
     /*4A Modificar el nom del departament 151*/
+    UPDATE DEPT SET DNAME = 'EJERCICIO' WHERE DEPTNO = 151;
 
    /*5A) Validar la transacció*/ 
+    COMMIT;
 
    /*6B) Seleccionar les dades del departament 151*/
-
+                                                            SELECT * FROM DEPT WHERE DEPTNO = 151;
+                                                                --151	EJERCICIO	NULL
    /*7B)Validar la transacció*/
-
+                                                            COMMIT;
    /*8B) Seleccionar les dades del departament 151*/
+                                                            SELECT * FROM DEPT WHERE DEPTNO = 151;
+                                                            --151	EJERCICIO	NULL
+
+-- COMMITTED - SERIALIZABLE 
+    /*1A) Inici de transacció (establint el nivell d'aïllament sempre a READ COMMITTED)*/
+    SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
+    /*2B) Inici de transacció (establint el nivell d'aïllament corresponent per als 
+        casos 1 i 2)*/
+                                                            SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+    /*3B Seleccionar les dades del departament 151*/
+                                                            SELECT * FROM DEPT WHERE DEPTNO = 151;
+                                                            --151	EJERCICIO	NULL
+    /*4A Modificar el nom del departament 151*/
+    UPDATE DEPT SET DNAME = 'EJERCICIO2' WHERE DEPTNO = 151;
+
+   /*5A) Validar la transacció*/ 
+    COMMIT;
+
+   /*6B) Seleccionar les dades del departament 151*/
+                                                            SELECT * FROM DEPT WHERE DEPTNO = 151;
+                                                                --151	EJERCICIO	NULL
+   /*7B)Validar la transacció*/
+                                                            COMMIT;
+   /*8B) Seleccionar les dades del departament 151*/
+                                                            SELECT * FROM DEPT WHERE DEPTNO = 151;
+                                                            --151	EJERCICIO2	NULL
+
+/*
+CONCLUSIÓN COMMITTED-SERIALIZABLE:
+Cuando se hace con serializable se ignora los cambios de otras transacciones incluso cuando hacen
+commit, por lo que en 6B se obtiene se obtiene el valor sin cambiar EJERCICIO y cuando termina la sesión B 
+es cuando se ven los cambios realizados por otras transacciones.
+*/
+
+/*
+DIFERENCIAS ENTRE COMMITTED-SERIALIZABLE en la sesión B. Con COMMITTED, en la linea 6B se obtiene el valor cambiado,
+con serializable no porque cuando se hace con serializable se ignora los cambios de otras transacciones incluso cuando hacen
+commit, por lo que en 6B se obtiene se obtiene el valor sin cambiar EJERCICIO y cuando termina la sesión B 
+es cuando se ven los cambios realizados por otras transacciones.
+
+*/
