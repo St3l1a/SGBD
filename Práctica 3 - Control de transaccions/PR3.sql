@@ -105,3 +105,102 @@ ordenada, sobre les taules dels esquemes propis de cada usuari:
     /*7) Validar la transacció*/
     COMMIT;
     
+/**********************************************************************************
+*
+*                                    EJERCICIO 2
+*
+***********************************************************************************
+Generar un script de base de dades que realitze la següent transacció executant 
+aquestes tasques en l'ordre establit:
+
+Identificar els problemes en les accions individuals i comentar els motius que les generen.
+************************************************************************************/
+
+// TRANSACCIÓ 2.1
+    /* 1)Crear un departament nou (amb les dades que es desitgen) amb codi 
+        de departament 60*/
+    
+    /*2) Establir un punt de salvaguarda SP1*/
+    
+    /*3) Crear un empleat nou (amb les dades que es desitgen) amb codi d'empleat 9061 
+        i assignat al departament 60*/
+    
+    /*4)Crear un empleat nou (amb les dades que es desitgen) amb codi d'empleat 9062 
+        i assignat al departament 60*/
+    
+    /*5)Crear un departament nou (amb les dades que es desitgen) amb codi de 
+        departament 70)*/
+    
+    /*6)Establir un punt de salvaguarda SP2*/
+    
+    /*7)Crear un empleat nou (amb les dades que es desitgen) amb codi d'empleat 9071 
+        i assignat al departament 70*/
+    
+    /*8)Crear un empleat nou (amb les dades que es desitgen) amb codi d'empleat 9071 
+        i assignat al departament 70*/
+    
+    /*9)Tornar al punt de salvaguarda SP2*/
+    
+    /*10)Crear un empleat nou (amb les dades que es desitgen) amb codi d'empleat 9071 
+        i assignat al departament 70*/
+    
+    /*11)Tornar al punt de salvaguarda SP1*/
+    
+    /*12)Crear un empleat nou (amb les dades que es desitgen) amb codi d'empleat 9071 
+        i assignat al departament 70*/
+        
+    /*13)Validar la transacció*/
+
+
+/**********************************************************************************
+*
+*                                    EJERCICIO 3
+*
+***********************************************************************************
+Repetir les transaccions usant 2 tipus diferents d'aïllament per a la transacció B: 
+READ COMMITED i SERIALIZABLE.
+
+Localitzar les diferències de tots dos procediments i indicar el motiu pel qual succeeixen. Abans d'iniciar
+la segona iteració, eliminar el departament 151 perquè no es produïsca un error d'inserció per duplicitat
+de clau primària.
+
+Localitzar les diferències de tots dos procediments i indicar el motiu pel qual succeeixen
+************************************************************************************/
+
+// TRANSACCIÓ 3.1 (Phantom reads)
+    /*1A) Inici de transacció (establint el nivell d'aïllament sempre a READ COMMITTED)*/
+
+    /*2B) Inici de transacció (establint el nivell d'aïllament corresponent per als casos 1 
+        i 2)*/
+    
+    /*3A Inserir un registre en la taula de departaments amb codi 151 i nom ADVERTISING*/
+
+    /*4B Contar el nombre de departaments*/
+
+   /*5A) Contar el nombre de departaments*/ 
+
+   /*6A) Validar la transacció*/
+
+   /*7B) Contar el nombre de departaments*/
+
+   /*8B) Validar la transacció*/
+   
+   /*9B) Contar el nombre de departaments*/
+
+// TRANSACCIÓ 3.2 (Nonrepeatable reads) 
+    /*1A) Inici de transacció (establint el nivell d'aïllament sempre a READ COMMITTED)*/
+
+    /*2B) Inici de transacció (establint el nivell d'aïllament corresponent per als 
+        casos 1 i 2)*/
+    
+    /*3B Seleccionar les dades del departament 151*/
+
+    /*4A Modificar el nom del departament 151*/
+
+   /*5A) Validar la transacció*/ 
+
+   /*6B) Seleccionar les dades del departament 151*/
+
+   /*7B)Validar la transacció*/
+
+   /*8B) Seleccionar les dades del departament 151*/
