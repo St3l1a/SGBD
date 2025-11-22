@@ -85,42 +85,42 @@ ordenada, sobre les taules dels esquemes propis de cada usuari:
     /*6) Comprovar les dades que hi ha en la taula.*/
     SELECT * FROM EMP;
      /*
-    7369	SMITH	CLERK	    7902	17/12/80	800		        20
-    7499	ALLEN	SALESMAN	7698	20/02/81	1600	300	    30
-    7521	WARD	SALESMAN	7698	22/02/81	1250	500	    30
-    7566	JONES	MANAGER	    7839	02/04/81	2975		    20
-    7654	MARTIN	SALESMAN	7698	28/09/81	1250	1400	30
-    7698	BLAKE	MANAGER	    7839	01/05/81	2850		    30
-    7782	CLARK	MANAGER	    7839	09/06/81	2450		    10
-    7788	SCOTT	ANALYST	    7566	19/04/87	3000		    20
-    7839	KING	PRESIDENT		    17/11/81	5000		    10
-    7844	TURNER	SALESMAN	7698	08/09/81	1500	0	    30
-    7876	ADAMS	CLERK	    7788	23/05/87	1100		    20
-    7900	JAMES	CLERK	    7698	03/12/81	950		30
-    7902	FORD	ANALYST	    7566	03/12/81	3000		    20
-    7934	MILLER	CLERK	    7782	23/01/82	1300		    10
---> 8001	JULIAN	CONSULTANT	7839	20/10/83	3500	0	    50
+    7369	SMITH	CLERK	    7902	--2/80	800		        20
+    7499	ALLEN	SALESMAN	7698	--2/81	1600	300	    30
+    7521	WARD	SALESMAN	7698	--2/81	1250	500	    30
+    7566	JONES	MANAGER	    7839	--4/81	2975		    20
+    7654	MARTIN	SALESMAN	7698	--9/81	1250	1400	30
+    7698	BLAKE	MANAGER	    7839	--5/81	2850		    30
+    7782	CLARK	MANAGER	    7839	--6/81	2450		    10
+    7788	SCOTT	ANALYST	    7566	--4/87	3000		    20
+    7839	KING	PRESIDENT		    --1/81	5000		    10
+    7844	TURNER	SALESMAN	7698	--9/81	1500	0	    30
+    7876	ADAMS	CLERK	    7788	--5/87	1100		    20
+    7900	JAMES	CLERK	    7698	--2/81	950		30
+    7902	FORD	ANALYST	    7566	--2/81	3000		    20
+    7934	MILLER	CLERK	    7782	--1/82	1300		    10
+--> 8001	JULIAN	CONSULTANT	7839	--0/83	3500	0	    50
     */
     
     /*7) Validar la transacció*/
     COMMIT;
     
-/**********************************************************************************
+/***************************************--***************************************
 *
-*                                    EJERCICIO 2
+*                                    EJE--IO 2
 *
-***********************************************************************************
-Generar un script de base de dades que realitze la següent transacció executant 
+****************************************--***************************************
+Generar un script de base de dades que r--tze la següent transacció executant 
 aquestes tasques en l'ordre establit:
 
-Identificar els problemes en les accions individuals i comentar els motius que les generen.
-************************************************************************************/
+Identificar els problemes en les accions--ividuals i comentar els motius que les generen.
+****************************************--****************************************/
 
 // TRANSACCIÓ 2.1
-    /* 1)Crear un departament nou (amb les dades que es desitgen) amb codi 
+    /* 1)Crear un departament nou (amb l--ades que es desitgen) amb codi 
         de departament 60*/
-    SET TRANSACTION READ WRITE NAME '2.1';
-    INSERT INTO DEPT (DEPTNO, DNAME, LOC) VALUES (60, 'PRUEBA', 'VALENCIA');
+    SET TRANSACTION READ WRITE NAME '2.1--
+    INSERT INTO DEPT (DEPTNO, DNAME, LOC--LUES (60, 'PRUEBA', 'VALENCIA');
 
     /*
     10	ACCOUNTING	NEW YORK
@@ -340,17 +340,111 @@ realizados por otras transacciones.
                                                             SELECT * FROM DEPT WHERE DEPTNO = 151;
                                                             --151	EJERCICIO2	NULL
 
-/*
-CONCLUSIÓN COMMITTED-SERIALIZABLE:
-Cuando se hace con serializable se ignora los cambios de otras transacciones incluso cuando hacen
-commit, por lo que en 6B se obtiene se obtiene el valor sin cambiar EJERCICIO y cuando termina la sesión B 
-es cuando se ven los cambios realizados por otras transacciones.
-*/
+    /*
+    CONCLUSIÓN COMMITTED-SERIALIZABLE:
+    Cuando se hace con serializable se ignora los cambios de otras transacciones incluso cuando hacen
+    commit, por lo que en 6B se obtiene se obtiene el valor sin cambiar EJERCICIO y cuando termina la sesión B 
+    es cuando se ven los cambios realizados por otras transacciones.
+    */
 
-/*
-DIFERENCIAS ENTRE COMMITTED-SERIALIZABLE en la sesión B. Con COMMITTED, en la linea 6B se obtiene el valor cambiado,
-con serializable no porque cuando se hace con serializable se ignora los cambios de otras transacciones incluso cuando hacen
-commit, por lo que en 6B se obtiene se obtiene el valor sin cambiar EJERCICIO y cuando termina la sesión B 
-es cuando se ven los cambios realizados por otras transacciones.
+    /*
+    DIFERENCIAS ENTRE COMMITTED-COMMITTED y COMMITTED-SERIALIZABLE 
+    En READ COMMITTED, la sesión B ve siempre los últimos cambios confirmados, por eso en la línea 6B obtiene el valor modificado tras el COMMIT de la sesión A.
+    En SERIALIZABLE, la sesión B ignora los cambios de otras transacciones incluso aunque hagan COMMIT.
+    Por ello, en la línea 6B obtiene el valor sin modificar.
+    Solo cuando finaliza la sesión B es cuando pasa a ver los cambios realizados por otras transacciones.
+    */
 
-*/
+
+/**********************************************************************************
+*
+*                                    EJERCICIO 4
+*
+***********************************************************************************
+Per a la realització d'aquest exercici s'obriran 2 sessions simultànies sobre la base 
+de dades. Des de cadascuna de les sessions es realitzaran les accions que s'esmenten, 
+seguint l'ordre temporal establit i la sessió corresponent.
+
+Avaluar l'èxit de l'operació, el moment en què es produeixen bloquejos i retards en 
+les execucions d'accions particulars i el resultat de les transaccions per a cadascun 
+dels casos.
+
+************************************************************************************/
+
+// CASO #4.1
+    /*1A) Inici de transacció*/
+
+    /*2A) Inserir un registre en la taula de departaments amb codi 101 y nom PRIVACY*/
+
+    /*3A) Fer un COMMIT*/
+    
+    /*4B) Inici de transacció*/
+
+    /*5A) Actualitzar el nombre de departament 101 a 102*/
+
+    /*6B) Actualitzar el valor del nombre de departament 101 sumant-li 5*/
+
+    /*7B) Actualitzar el valor del nombre de departament 102 sumant-li 5*/
+
+    /*8A) Validar la transacció*/
+
+    /*9B) Validar la transacció*/
+
+
+// CASO #4.2
+    /*1A) Inici de transacció*/
+
+    /*2B) Inici de transacció*/
+
+    /*3A) Seleccionar tots els departaments amb valor superior o igual a 100 amb 
+        l'objectiu d'actualitzar algun dels seus camps (clàusula FOR UPDATE)*/
+    
+    /*4B) Contar tots els departaments amb valor inferior a 100*/
+
+    /*5A) Restar 10 unitats als identificadors de departaments amb valor superior a 100 
+        i contar els departaments amb valor inferior a 100.*/
+
+    /*6B) Contar tots els departaments amb valor inferior a 100*/
+    
+    /*7A) Validar la transacció*/
+
+    /*8B) Validar la transacció*/
+
+
+// CASO #4.3
+    /*1A) Inici de transacció*/
+
+    /*2B) Inici de transacció*/
+
+    /*3A) Crear un departament amb nombre 110*/
+    
+    /*4A) Realitzar un COMMIT*/
+
+    /*5B) Crear un departament amb nombre120*/
+
+    /*6B) Realitzar un COMMIT*/
+    
+    /*7A) Seleccionar el departament 110 amb l'objectiu d'actualitzar algun 
+        dels seus camps (clàusula FORUPDATE)*/
+
+    /*8B) Seleccionar el departament 120 amb l'objectiu d'actualitzar algun 
+        dels seus camps (clàusula FOR UPDATE)*/
+
+    /*9A) Canviar el nom del departament 110*/
+
+    /*10B) Canviar el nom del departament 120*/
+
+    /*11A) Seleccionar el departament 120 amb l'objectiu d'actualitzar algun 
+        dels seus camps (clàusula FOR UPDATE)*/
+
+    /*12B) Seleccionar el departament 110 amb l'objectiu d'actualitzar algun 
+        dels seus camps (clàusula FOR UPDATE)*/
+    
+    /*13A) Canviar el nom del departament 120*/
+
+    /*14B) Canviar el nom del departament 110*/
+
+    /*15A) Validar la transacció*/
+
+    /*16B) Validar la transacció*/
+
