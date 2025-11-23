@@ -373,78 +373,204 @@ dels casos.
 
 // CASO #4.1
     /*1A) Inici de transacció*/
-
+    SET TRANSACTION READ WRITE NAME '4.1.A';
+   
     /*2A) Inserir un registre en la taula de departaments amb codi 101 y nom PRIVACY*/
+    INSERT INTO DEPT(DEPTNO,DNAME) VALUES (101,'PRIVACY'); 
+    -- 101	PRIVACY   NULL
 
     /*3A) Fer un COMMIT*/
-    
+    COMMIT;
+    --101	PRIVACY	    NULL                                --101	PRIVACY	    NULL
+
     /*4B) Inici de transacció*/
+                                                            SET TRANSACTION READ WRITE NAME '4.1.B';
 
     /*5A) Actualitzar el nombre de departament 101 a 102*/
+    UPDATE DEPT 
+    SET DEPTNO = 102
+    WHERE DEPTNO = 101;
+    --102	PRIVACY	    NULL
+    -- Bloqueo sobre la fila nueva fila
 
     /*6B) Actualitzar el valor del nombre de departament 101 sumant-li 5*/
+                                                            UPDATE DEPT
+                                                            SET DEPTNO = DEPTNO + 5
+                                                            WHERE DEPTNO = 101;
+                                                            -- RESULTADO: Se queda esperando quedandose 
+                                                            -- bloqueado por la sesión A porque no ha hecho commit
 
     /*7B) Actualitzar el valor del nombre de departament 102 sumant-li 5*/
+                                                            UPDATE DEPT
+                                                            SET DEPTNO = DEPTNO + 5
+                                                            WHERE DEPTNO = 102;
+                                                            -- 0 filas actualizadas porque la sesión B no ve el cambio de A 
+                                                            -- porque no ha hecho commit y para ella (Sesión B) 
+                                                            -- no existe el DEPT 102 todavía
 
     /*8A) Validar la transacció*/
+    COMMIT; 
+    -- Ahora la sesión B ve que existe el DEPT 102
 
     /*9B) Validar la transacció*/
-
+                                                            COMMIT; 
+                                                            --102	PRIVACY	    NULL
 
 // CASO #4.2
     /*1A) Inici de transacció*/
+    SET TRANSACTION READ WRITE NAME '4.2.A';
 
     /*2B) Inici de transacció*/
-
+                                                            SET TRANSACTION READ WRITE NAME '4.2.B';
+    
     /*3A) Seleccionar tots els departaments amb valor superior o igual a 100 amb 
         l'objectiu d'actualitzar algun dels seus camps (clàusula FOR UPDATE)*/
-    
+    SELECT * FROM DEPT
+    WHERE DEPTNO >= 100
+    FOR UPDATE;
+    --102	PRIVACY	        NULL
+    --151	EJERCICIO2	    NULL
+
     /*4B) Contar tots els departaments amb valor inferior a 100*/
+                                                            SELECT COUNT(*) 
+                                                            FROM DEPT
+                                                            WHERE DEPTNO <= 100;
+                                                            -- RESULTADO: 6
 
     /*5A) Restar 10 unitats als identificadors de departaments amb valor superior a 100 
         i contar els departaments amb valor inferior a 100.*/
+    UPDATE DEPT
+    SET DEPTNO = DEPTNO-10
+    WHERE DEPTNO >= 100;
+    -- 2 filas actualizadas
+    --92	PRIVACY	        NULL
+    --141	EJERCICIO2	    NULL
 
     /*6B) Contar tots els departaments amb valor inferior a 100*/
-    
+                                                            SELECT COUNT(*) 
+                                                            FROM DEPT
+                                                            WHERE DEPTNO <= 100;
+                                                            -- RESULTADO: 6
+                                                            -- Hasta que la sesión A no haga commit 
+                                                            -- la sesión B no sabe que hay un dept <= 100 más
+                                                            -- es decir, no sabe que ahora el dept con nombre PRIVACY 
+                                                            -- es menor que 100.
+
     /*7A) Validar la transacció*/
+    COMMIT;
+    -- Ahora la sesión B puede ver 
+    -- 92	PRIVACY	  NULL
+    -- y si volvemos a hacer el paso 4B vemos
+    -- que ahora hay como resultado 7
 
     /*8B) Validar la transacció*/
-
+                                                            COMMIT;
+                                                        
 
 // CASO #4.3
     /*1A) Inici de transacció*/
+    SET TRANSACTION READ WRITE NAME '4.3.A';
 
     /*2B) Inici de transacció*/
+                                                            SET TRANSACTION READ WRITE NAME '4.3.B';
 
     /*3A) Crear un departament amb nombre 110*/
-    
+    INSERT INTO DEPT (DEPTNO, DNAME)VALUES (110, '3A');
+    -- 110	3A	NULL
+
     /*4A) Realitzar un COMMIT*/
+    COMMIT;
+    -- Le aparece a la sesión B el dept 110
 
-    /*5B) Crear un departament amb nombre120*/
-
+    /*5B) Crear un departament amb nombre 120*/
+                                                            INSERT INTO DEPT (DEPTNO, DNAME)VALUES (120, '5B');
+                                                            -- 120	5B	NULL
+                                                            
     /*6B) Realitzar un COMMIT*/
-    
+                                                            COMMIT;
+                                                            -- Le aparece a la sesión A el dept 120
+
     /*7A) Seleccionar el departament 110 amb l'objectiu d'actualitzar algun 
-        dels seus camps (clàusula FORUPDATE)*/
+        dels seus camps (clàusula FOR UPDATE)*/
+    SELECT * 
+    FROM DEPT
+    WHERE DEPTNO = 110
+    FOR UPDATE;
+    -- 110	3A	NULL
+    -- La sesión A bloquea eel 
+    -- dept 110 para actualizar
 
     /*8B) Seleccionar el departament 120 amb l'objectiu d'actualitzar algun 
         dels seus camps (clàusula FOR UPDATE)*/
+                                                            SELECT * 
+                                                            FROM DEPT
+                                                            WHERE DEPTNO = 120
+                                                            FOR UPDATE;
+                                                            -- 120	5B	NULL
+                                                            -- La sesión B bloquea el 
+                                                            -- dept 120 para actualizar
 
     /*9A) Canviar el nom del departament 110*/
+    UPDATE DEPT
+    SET DNAME = '9A'
+    WHERE DEPTNO = 110;
+    --110	9A	NULL
+    --Permite cambiar el nombre porque
+    --la misma sesión A tiene bloqueada el dept 110
 
     /*10B) Canviar el nom del departament 120*/
+                                                            UPDATE DEPT
+                                                            SET DNAME = '10B'
+                                                            WHERE DEPTNO = 120;
+                                                            -- 120	10B	 NULL
+                                                            --Permite cambiar el nombre porque
+                                                            --la misma sesión B tiene bloqueada el dept 120
 
     /*11A) Seleccionar el departament 120 amb l'objectiu d'actualitzar algun 
         dels seus camps (clàusula FOR UPDATE)*/
+    SELECT * 
+    FROM DEPT 
+    WHERE DEPTNO = 120
+    FOR UPDATE;
+    -- Se queda esperando porque se bloquea
+    -- ya que la sesión B tiene bloqueada el dept 120
+    -- porque se está modificando.
+    -- ORA-00060: detectado interbloqueo mientras se esperaba un recurso
 
     /*12B) Seleccionar el departament 110 amb l'objectiu d'actualitzar algun 
         dels seus camps (clàusula FOR UPDATE)*/
-    
+                                                            SELECT * 
+                                                            FROM DEPT 
+                                                            WHERE DEPTNO = 110
+                                                            FOR UPDATE;
+                                                            -- Se queda esperando porque se bloquea
+                                                            -- ya que la sesión A tiene bloqueada el dept 110
+                                                            -- porque se está modificando.
+
     /*13A) Canviar el nom del departament 120*/
+    UPDATE DEPT
+    SET DNAME = '13A'
+    WHERE DEPTNO = 120;
+    -- Se queda esperando porque se bloquea
+    -- ya que aún la sesión B tiene bloqueada el dept 120
+    -- porque se está modificando.
 
     /*14B) Canviar el nom del departament 110*/
+                                                            UPDATE DEPT
+                                                            SET DNAME = '14B'
+                                                            WHERE DEPTNO = 110;
+                                                            -- Se queda esperando porque se bloquea
+                                                            -- ya que aún la sesión A tiene bloqueada el dept 110
+                                                            -- porque se está modificando.
 
     /*15A) Validar la transacció*/
+    COMMIT;
+    -- Se confirma el cambio del dept 110
+    -- y ya la sesión B puede hacer una 
+    --modificación sobre el dept 110.
 
     /*16B) Validar la transacció*/
-
+                                                            COMMIT;
+                                                            -- Se confirma el cambio del dept 120
+                                                            -- y ya la sesión A puede hacer una 
+                                                            --modificación sobre el dept 120.
