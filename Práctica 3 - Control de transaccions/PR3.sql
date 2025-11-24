@@ -574,3 +574,60 @@ dels casos.
                                                             -- Se confirma el cambio del dept 120
                                                             -- y ya la sesión A puede hacer una 
                                                             --modificación sobre el dept 120.
+/**********************************************************************************
+*
+*                                    EJERCICIO 4
+*
+************************************************************************************/
+// CASO #5.1
+    SET TRANSACTION READ WRITE NAME '5.1';
+    LOCK TABLE EMP IN SHARE MODE NOWAIT;
+                                                            SELECT * FROM EMP;
+                                                            --Funciona correctamente
+                                                            INSERT INTO EMP (EMPNO, ENAME, JOB) VALUES (1, 'ALBERTO', 'CONSULTANT');
+                                                            --Se queda cargando y no realiza la consulta hasta que la transición termina
+                                                        
+// CASO #5.2
+    SET TRANSACTION READ WRITE NAME '5.2';
+    LOCK TABLE EMP IN SHARE MODE NOWAIT;
+                                                            SELECT * FROM EMP;
+                                                            --Funciona correctamente
+                                                            INSERT INTO EMP (EMPNO, ENAME, JOB) VALUES (1, 'ALBERTO', 'CONSULTANT');
+                                                            --Se queda cargando y no realiza la consulta 
+                                                        
+// CASO #5.3
+    SET TRANSACTION READ WRITE NAME '5.1';
+    LOCK TABLE EMP IN SHARE MODE NOWAIT;
+                                                            SELECT * FROM EMP;
+                                                            --Funciona correctamente
+                                                            SELECT * FROM EMP WHERE EMPNO = 1 FOR UPDATE;
+                                                            --Se queda cargando y no realiza la consulta hasta que la transición termina
+       
+// CASO #5.4
+SET TRANSACTION READ WRITE NAME '5.4.A';
+                                                            SET TRANSACTION READ WRITE NAME '5.4.B';
+LOCK TABLE EMP IN SHARE MODE NOWAIT;
+                                                            LOCK TABLE EMP IN ROW SHARE MODE NOWAIT;
+SELECT o.object_name, lo.locked_mode
+FROM v$locked_object lo
+JOIN all_objects o ON lo.object_id = o.object_id;
+/*
+OBJECT_NAME     LOCKED_MODE
+--------------- -----------
+EMP                       4
+EMP                       2
+*/
+                                                            SELECT o.object_name, lo.locked_mode
+                                                            FROM v$locked_object lo
+                                                            JOIN all_objects o ON lo.object_id = o.object_id;
+                                                            /*
+                                                            OBJECT_NAME     LOCKED_MODE
+                                                            --------------- -----------
+                                                            EMP                       4
+                                                            EMP                       2
+                                                            */
+
+
+
+
+                    
