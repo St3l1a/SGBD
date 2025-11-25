@@ -628,6 +628,55 @@ EMP                       2
                                                             */
 
 
+/**********************************************************************************
+*
+*                                    EJERCICIO 6
+*
+************************************************************************************/
+
+CREATE TABLE "EMPGRADE" (
+"EMPNO" NUMBER(10,0), 
+"GRADE" NUMBER
+);
+--Table "EMPGRADE" creado.
+
+INSERT INTO EMPGRADE (EMPNO, GRADE)
+SELECT 
+    E.EMPNO,
+    NVL(S.GRADE, 0) AS GRADE
+FROM EMP E
+LEFT JOIN SALGRADE S
+    ON E.SAL BETWEEN S.LOSAL AND S.HISAL;
+--17 filas insertadas.
+
+COMMIT;
+--Hacemos commit despues de insertar los datos en EMPGRADE para poder empezar la siguiente transacción sin problemas.
+
+SET TRANSACTION READ WRITE NAME '6.0';
+
+//6.1 Crear un empleat nou
+INSERT INTO EMP (EMPNO, ENAME, JOB)
+VALUES (8010, 'CAGE', 'ASSISTANT');
+--1 fila insertadas.
+
+//6.2 Actualitzar el empleat creat (8010) 
+UPDATE EMP
+SET MGR = 8001,
+    HIREDATE = TO_DATE('13/01/83', 'DD/MM/YY'),
+    SAL = 3800,
+    COMM = 100,
+    DEPTNO = 50
+WHERE EMPNO = 8010;
+--1 fila actualizadas.
+
+//6.3 Assignar el nou empleat creat al grau salarial nombre 4 amb una inserció en la taula EMPGRADE. 
+INSERT INTO EMPGRADE (EMPNO, GRADE) VALUES (8010, 4);
+--1 fila insertadas.
+
+//6.4 Comprovar si es compleixen les següents condicions 
+//a. Condició #1: el grau salarial assignat coincideix amb el salari del empleat. 
+
+//b. Condició #2: el salari de l’empleat és inferior al salari del seu cap.
 
 
                     
