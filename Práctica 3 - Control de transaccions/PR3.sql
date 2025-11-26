@@ -391,7 +391,7 @@ dels casos.
     SET DEPTNO = 102
     WHERE DEPTNO = 101;
     --102	PRIVACY	    NULL
-    -- Bloqueo sobre la fila nueva fila
+    -- Bloqueo sobre la fila nueva 
 
     /*6B) Actualitzar el valor del nombre de departament 101 sumant-li 5*/
                                                             UPDATE DEPT
@@ -400,6 +400,11 @@ dels casos.
                                                             -- RESULTADO: Se queda esperando quedandose 
                                                             -- bloqueado por la sesión A porque no ha hecho commit
 
+    /*8A) Validar la transacció*/
+    COMMIT; 
+    -- Ahora la sesión B ve que existe el DEPT 102 
+    -- y se DESBLOQUEA la Sesión B
+
     /*7B) Actualitzar el valor del nombre de departament 102 sumant-li 5*/
                                                             UPDATE DEPT
                                                             SET DEPTNO = DEPTNO + 5
@@ -407,10 +412,6 @@ dels casos.
                                                             -- 0 filas actualizadas porque la sesión B no ve el cambio de A 
                                                             -- porque no ha hecho commit y para ella (Sesión B) 
                                                             -- no existe el DEPT 102 todavía
-
-    /*8A) Validar la transacció*/
-    COMMIT; 
-    -- Ahora la sesión B ve que existe el DEPT 102
 
     /*9B) Validar la transacció*/
                                                             COMMIT; 
@@ -497,7 +498,7 @@ dels casos.
     WHERE DEPTNO = 110
     FOR UPDATE;
     -- 110	3A	NULL
-    -- La sesión A bloquea eel 
+    -- La sesión A bloquea el 
     -- dept 110 para actualizar
 
     /*8B) Seleccionar el departament 120 amb l'objectiu d'actualitzar algun 
@@ -537,6 +538,8 @@ dels casos.
     -- porque se está modificando.
     -- ORA-00060: detectado interbloqueo mientras se esperaba un recurso
 
+
+
     /*12B) Seleccionar el departament 110 amb l'objectiu d'actualitzar algun 
         dels seus camps (clàusula FOR UPDATE)*/
                                                             SELECT * 
@@ -545,38 +548,160 @@ dels casos.
                                                             FOR UPDATE;
                                                             -- Se queda esperando porque se bloquea
                                                             -- ya que la sesión A tiene bloqueada el dept 110
-                                                            -- porque se está modificando.
+                                                            -- porque se está modificando. Al bloquearse, Oracle cancela 
+                                                            -- la operación de la sesión A.
 
+    //VOLVEMOS A EJECUTAR LA OPERACIÓN DEL 11 A PORQUE ORACLE HA CANCELADO LA OPERACIÓN AL HABERSE BLOQUEADO LA SESIÓN B                                                    
+     /*11A) Seleccionar el departament 120 amb l'objectiu d'actualitzar algun 
+        dels seus camps (clàusula FOR UPDATE)*/
+    SELECT * 
+    FROM DEPT 
+    WHERE DEPTNO = 120
+    FOR UPDATE;
+    -- Se queda esperando porque se bloquea
+    -- ya que la sesión B tiene bloqueada el dept 120
+    -- porque se está modificando.
+    -- ORA-00060: detectado interbloqueo mientras se esperaba un recurso
+
+    // VUELVE HA PASAR LO MISMO, LA SESIÓN A SE BLOQUEA Y ORACLE CANCELA LA OPERACIÓN DE LA SESIÓN b
+    // POR LO QUE ES UN BUCLE INFINITO HASTA QUE ENCONTREMOS UNA SOLUCIÓN.
+
+    /*1A) Inici de transacció*/
+    SET TRANSACTION READ WRITE NAME '4.3.A';
+
+    /*2B) Inici de transacció*/
+                                                            SET TRANSACTION READ WRITE NAME '4.3.B';
+
+    /*3A) Crear un departament amb nombre 110*/
+    INSERT INTO DEPT (DEPTNO, DNAME)VALUES (110, '3A');
+    -- 110	3A	NULL
+
+    /*4A) Realitzar un COMMIT*/
+    COMMIT;
+    -- Le aparece a la sesión B el dept 110
+
+    /*5B) Crear un departament amb nombre 120*/
+                                                            INSERT INTO DEPT (DEPTNO, DNAME)VALUES (120, '5B');
+                                                            -- 120	5B	NULL
+                                                            
+    /*6B) Realitzar un COMMIT*/
+                                                            COMMIT;
+                                                            -- Le aparece a la sesión A el dept 120
+
+    /*7A) Seleccionar el departament 110 amb l'objectiu d'actualitzar algun 
+        dels seus camps (clàusula FOR UPDATE)*/
+    SELECT * 
+    FROM DEPT
+    WHERE DEPTNO = 110
+    FOR UPDATE;
+    -- 110	3A	NULL
+    -- La sesión A bloquea el 
+    -- dept 110 para actualizar
+
+    /*8B) Seleccionar el departament 120 amb l'objectiu d'actualitzar algun 
+        dels seus camps (clàusula FOR UPDATE)*/
+                                                            SELECT * 
+                                                            FROM DEPT
+                                                            WHERE DEPTNO = 120
+                                                            FOR UPDATE;
+                                                            -- 120	5B	NULL
+                                                            -- La sesión B bloquea el 
+                                                            -- dept 120 para actualizar
+
+    /*9A) Canviar el nom del departament 110*/
+    UPDATE DEPT
+    SET DNAME = '9A'
+    WHERE DEPTNO = 110;
+    --110	9A	NULL
+    --Permite cambiar el nombre porque
+    --la misma sesión A tiene bloqueada el dept 110
+
+    /*10B) Canviar el nom del departament 120*/
+                                                            UPDATE DEPT
+                                                            SET DNAME = '10B'
+                                                            WHERE DEPTNO = 120;
+                                                            -- 120	10B	 NULL
+                                                            --Permite cambiar el nombre porque
+                                                            --la misma sesión B tiene bloqueada el dept 120
+
+    /*11A) Seleccionar el departament 120 amb l'objectiu d'actualitzar algun 
+        dels seus camps (clàusula FOR UPDATE)*/
+    SELECT * 
+    FROM DEPT 
+    WHERE DEPTNO = 120
+    FOR UPDATE;
+    -- Se queda esperando porque se bloquea
+    -- ya que la sesión B tiene bloqueada el dept 120
+    -- porque se está modificando.
+    -- ORA-00060: detectado interbloqueo mientras se esperaba un recurso
+
+                                                            /*==> SOLUCIÓN: deshacer la sesión*/
+                                                                ROLLBACK;
+                                                                -- B libera el bloqueo de A
+
+
+    //CONTINUAMOS CON LAS OPERACIONES DE LA SESIÓN A 
     /*13A) Canviar el nom del departament 120*/
     UPDATE DEPT
     SET DNAME = '13A'
     WHERE DEPTNO = 120;
-    -- Se queda esperando porque se bloquea
-    -- ya que aún la sesión B tiene bloqueada el dept 120
-    -- porque se está modificando.
+    -- Se actualiza la fila
+    -- 120	13A	NULL
+
+    
+     /*15A) Validar la transacció*/
+    COMMIT;
+
+    // AHORA VOLVEMOS HACER TODAS LAS OPERACIONES DE LA SESIÓN B DESDE EL COMMIT PORQUE HEMOS
+    // HECHO UN ROLLBACK ANTERIORMENTE.
+
+    /*8B) Seleccionar el departament 120 amb l'objectiu d'actualitzar algun 
+        dels seus camps (clàusula FOR UPDATE)*/
+                                                            SELECT * 
+                                                            FROM DEPT
+                                                            WHERE DEPTNO = 120
+                                                            FOR UPDATE;
+                                                            
+                                                            -- La sesión B bloquea el 
+                                                            -- dept 120	13A	NULL para actualizar
+
+    /*10B) Canviar el nom del departament 120*/
+                                                            UPDATE DEPT
+                                                            SET DNAME = '10B'
+                                                            WHERE DEPTNO = 120;
+                                                            -- 120	10B	 NULL
+                                                            --Permite cambiar el nombre porque
+                                                            --la misma sesión B tiene bloqueada el dept 120
+
+    /*12B) Seleccionar el departament 110 amb l'objectiu d'actualitzar algun 
+        dels seus camps (clàusula FOR UPDATE)*/
+                                                            SELECT * 
+                                                            FROM DEPT 
+                                                            WHERE DEPTNO = 110
+                                                            FOR UPDATE;
+                                                             -- La sesión B bloquea el 
+                                                            -- dept 110	9A	NULL para actualizar
 
     /*14B) Canviar el nom del departament 110*/
                                                             UPDATE DEPT
                                                             SET DNAME = '14B'
                                                             WHERE DEPTNO = 110;
-                                                            -- Se queda esperando porque se bloquea
-                                                            -- ya que aún la sesión A tiene bloqueada el dept 110
-                                                            -- porque se está modificando.
+                                                            -- Se actualiza 
+                                                            -- 110	14B	   NULL
 
-    /*15A) Validar la transacció*/
-    COMMIT;
-    -- Se confirma el cambio del dept 110
-    -- y ya la sesión B puede hacer una 
-    --modificación sobre el dept 110.
+   
+    -- 
 
     /*16B) Validar la transacció*/
                                                             COMMIT;
-                                                            -- Se confirma el cambio del dept 120
-                                                            -- y ya la sesión A puede hacer una 
-                                                            --modificación sobre el dept 120.
+                                                            -- Se confirma 
+-- RESULTADO TABLA:
+    // 110	14B	    NULL
+    // 120	10B	    NULL
+
 /**********************************************************************************
 *
-*                                    EJERCICIO 4
+*                                    EJERCICIO 5
 *
 ************************************************************************************/
 // CASO #5.1
@@ -652,31 +777,129 @@ LEFT JOIN SALGRADE S
 COMMIT;
 --Hacemos commit despues de insertar los datos en EMPGRADE para poder empezar la siguiente transacción sin problemas.
 
-SET TRANSACTION READ WRITE NAME '6.0';
+CREATE OR REPLACE PROCEDURE gestionar_nuevo_empleado AS
+    -- Variables auxiliars
+    v_sal_emp     EMP.SAL%TYPE;
+    v_sal_jefe     EMP.SAL%TYPE;
+    v_grade       EMPGRADE.GRADE%TYPE;
+BEGIN
+    ---------------------------------------------------------
+    -- 1. Crear empleat 8010
+    ---------------------------------------------------------
+    INSERT INTO EMP (EMPNO, ENAME, JOB)
+    VALUES (8010, 'CAGE', 'ASSISTANT');
 
-//6.1 Crear un empleat nou
-INSERT INTO EMP (EMPNO, ENAME, JOB)
-VALUES (8010, 'CAGE', 'ASSISTANT');
---1 fila insertadas.
+    ---------------------------------------------------------
+    -- 2. Actualitzar empleat 8010 amb les dades noves
+    ---------------------------------------------------------
+    UPDATE EMP
+       SET MGR     = 8001,
+           HIREDATE = TO_DATE('13/01/83','DD/MM/YY'),
+           SAL     = 3800,
+           COMM    = 100,
+           DEPTNO  = 50
+     WHERE EMPNO = 8010;
 
-//6.2 Actualitzar el empleat creat (8010) 
-UPDATE EMP
-SET MGR = 8001,
-    HIREDATE = TO_DATE('13/01/83', 'DD/MM/YY'),
-    SAL = 3800,
-    COMM = 100,
-    DEPTNO = 50
-WHERE EMPNO = 8010;
---1 fila actualizadas.
+    ---------------------------------------------------------
+    -- 3. Assignar el grau salarial 4 en EMPGRADE
+    ---------------------------------------------------------
+    INSERT INTO EMPGRADE (EMPNO, GRADE)
+    VALUES (8010, 4);
 
-//6.3 Assignar el nou empleat creat al grau salarial nombre 4 amb una inserció en la taula EMPGRADE. 
-INSERT INTO EMPGRADE (EMPNO, GRADE) VALUES (8010, 4);
---1 fila insertadas.
+    ---------------------------------------------------------
+    -- 4. Comprovar condicions
+    ---------------------------------------------------------
 
-//6.4 Comprovar si es compleixen les següents condicions 
-//a. Condició #1: el grau salarial assignat coincideix amb el salari del empleat. 
+    -- Obtenir salari del empleat
+    SELECT SAL INTO v_sal_emp
+    FROM EMP
+    WHERE EMPNO = 8010;
 
-//b. Condició #2: el salari de l’empleat és inferior al salari del seu cap.
+    -- Obtenir salari del cap
+    SELECT SAL INTO v_sal_jefe
+    FROM EMP
+    WHERE EMPNO = 8001;
+
+    -- Obtenir el grau assignat
+    SELECT GRADE INTO v_grade
+    FROM EMPGRADE
+    WHERE EMPNO = 8010;
+
+    ---------------------------------------------------------
+    -- 5. Si no es compleix la condició #2 
+    ---------------------------------------------------------
+    IF v_sal_emp >= v_sal_jefe THEN
+        -- Quitar empleado
+        DELETE FROM EMP WHERE EMPNO = 8010;
+        DELETE FROM EMPGRADE WHERE EMPNO = 8010;
+
+
+        -- Tornar a crear i actualitzar l’empleat
+        INSERT INTO EMP (EMPNO, ENAME, JOB)
+        VALUES (8010, 'CAGE', 'ASSISTANT');
+
+        UPDATE EMP
+           SET MGR     = 8001,
+               HIREDATE = TO_DATE('13/01/83','DD/MM/YY'),
+               SAL     = v_sal_jefe - 800,        -- nou salari
+               COMM    = 100,
+               DEPTNO  = 50
+         WHERE EMPNO = 8010;
+
+        -- Tornar a assignar el grau 4
+        INSERT INTO EMPGRADE (EMPNO, GRADE)
+        VALUES (8010, 4);
+    END IF;
+
+    ---------------------------------------------------------
+    -- 6. Si no es compleix la condició #1 (grau no concorda amb salari)
+    ---------------------------------------------------------
+    -- Suposem que el grau correcte és:
+    --  GRADE 4 si SAL >= 3000
+    --  GRADE 3 si SAL 2000–2999
+    --  GRADE 2 si SAL 1000–1999
+    --  GRADE 1 si SAL < 1000
+    -- (Ajusta-ho si tens una taula de rangs)
+
+        DECLARE
+            v_grade_correcte NUMBER;
+        BEGIN
+            IF v_sal_emp BETWEEN 3001 AND 9999 THEN
+                v_grade_correcte := 5;
+                
+            ELSIF v_sal_emp BETWEEN 2001 AND 3000 THEN
+                v_grade_correcte := 4;
+        
+            ELSIF v_sal_emp BETWEEN 1401 AND 2000 THEN
+                v_grade_correcte := 3;
+        
+            ELSIF v_sal_emp BETWEEN 1201 AND 1400 THEN
+                v_grade_correcte := 2;
+            ELSE
+                v_grade_correcte := 1;
+            END IF;
+        
+            IF v_grade_correcte != v_grade THEN
+                -- Esborrem la inserció incorrecta
+                DELETE FROM EMPGRADE WHERE EMPNO = 8010;
+        
+                -- Inserim el grau correcte
+                INSERT INTO EMPGRADE (EMPNO, GRADE)
+                VALUES (8010, v_grade_correcte);
+            END IF;
+        END;
+
+
+    ---------------------------------------------------------
+    -- 7. Validar transacció
+    ---------------------------------------------------------
+    COMMIT;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+END gestionar_nuevo_empleado;
+/
 
 
                     
