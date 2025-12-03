@@ -1,0 +1,21 @@
+INSTRUCCIONES PARA LA DESCARGA DE LA MAQUINA VIRTUAL CON ORACLE 23AI
+====================================================================
+
+Para esta práctica se ha dispuesto una maquina virtual (Virtual Box) con Oracle Linux 8 que tiene instalado el SGBD Oracle 23ai Free. La máquina se puede descargar desde la siguiente URL:
+
+http://irtic.uv.es/~ramon/sgd/Oracle_Database_23ai_Free.zip
+
+con las siguientes credenciales: Usuario: sgd, Contraseña:sgd
+
+La maquina virtual dispone de un usuario oracle con el que se puede acceder a toda la funcionalidad de oracle y realizar las principales tareas de administración.
+
+Los usuarios del sistema operativo son:
+	root -> password oracle
+	oracle -> password oracle
+
+La máquina virtual viene con 2 bases de datos configuradas por defecto: FREEPDB1 y FREE. Por defecto, en la práctica trabajaremos con FREEPDB1 (el sistema está configurado para acceder a ella desde las aplicaciones de conexión a BD, como sql-cl y sqlplus).
+
+Para acceder a las bases de datos creadas, los usuarios de administración son:
+	sys -> password oracle
+	system -> password oracle
+
