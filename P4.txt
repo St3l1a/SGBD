@@ -1,0 +1,698 @@
+PR4
+1.
+[oracle@localhost ~]$ sql sys/oracle as sysdba
+
+
+SQLcl: Versión 24.2 Production en mié. dic. 03 10:09:30 2025
+
+Copyright (c) 1982, 2025, Oracle. Todos los derechos reservados.
+
+Conectado a:
+Oracle Database 23ai Free Release 23.0.0.0.0 - Develop, Learn, and Run for Free
+Version 23.5.0.24.07
+          
+
+2.
+SQL> sql sys/oracle
+
+Error que empieza en la línea: 1 del comando :
+sql sys/oracle
+Informe de error -
+Comando desconocido
+
+[oracle@localhost ~]$ sql sys/oracle
+
+
+SQLcl: Versión 24.2 Production en mié. dic. 03 10:17:08 2025
+
+Copyright (c) 1982, 2025, Oracle. Todos los derechos reservados.
+
+Fallo de conexión
+  USER          = sys
+  URL           = jdbc:oracle:oci8:@(DESCRIPTION =    (ADDRESS = (PROTOCOL = TCP)(HOST = localhost)(PORT = 1521))    (CONNECT_DATA =      (SERVER = DEDICATED)      (SERVICE_NAME = FREEPDB1)    )  )
+  Mensaje de Error = ORA-28009: connection as SYS should be as SYSDBA or SYSOPER
+Ayuda: https://docs.oracle.com/error-help/db/ora-28009/
+
+
+
+3. 
+[oracle@localhost ~]$ sql system/oracle
+
+SQLcl: Versión 24.2 Production en mié. dic. 03 10:17:22 2025
+
+Copyright (c) 1982, 2025, Oracle. Todos los derechos reservados.
+
+Last Successful login time: Mié Dic 03 2025 10:17:23 +00:00
+
+Conectado a:
+Oracle Database 23ai Free Release 23.0.0.0.0 - Develop, Learn, and Run for Free
+Version 23.5.0.24.07
+SQL> 
+
+4.
+
+[oracle@localhost ~]$ sql system/oracle as sysdba
+
+
+SQLcl: Versión 24.2 Production en mié. dic. 03 10:19:13 2025
+
+Copyright (c) 1982, 2025, Oracle. Todos los derechos reservados.
+
+Conectado a:
+Oracle Database 23ai Free Release 23.0.0.0.0 - Develop, Learn, and Run for Free
+Version 23.5.0.24.07
+
+SQL> 
+
+
+5. 
+SQL> shutdown immediate;
+Base de datos de conexión cerrada
+
+
+6.
+SQL> shutdown immediate;
+Base de datos de conexión cerrada
+
+
+7.
+sql> select * from dictionary;
+Aparece el diccionario
+5.628 filas seleccionadas. 
+
+
+8. 
+SQL> select * from v$fixed_table where name like 'v$%';
+
+no se ha seleccionado ninguna fila
+
+9.
+SQL> select username, user_id, account_status, lock_date, default_tablespace, temporary_tablespace from dba_users; 
+
+USERNAME                    USER_ID ACCOUNT_STATUS    LOCK_DATE    DEFAULT_TABLESPACE    TEMPORARY_TABLESPACE    
+_____________________ _____________ _________________ ____________ _____________________ _______________________ 
+SYS                               0 OPEN                           SYSTEM                TEMP                    
+SYSTEM                            9 OPEN                           SYSTEM                TEMP                    
+APEX_PUBLIC_USER                135 OPEN                           SYSAUX                TEMP                    
+APEX_PUBLIC_ROUTER              136 OPEN                           SYSAUX                TEMP                    
+AV                              150 OPEN                           USERS                 TEMP                    
+PDBADMIN                        132 OPEN                           USERS                 TEMP                    
+SYSRAC                   2147483620 OPEN                           USERS                 TEMP                    
+HR                              146 OPEN                           USERS                 TEMP                    
+CO                              148 OPEN                           USERS                 TEMP                    
+ORDS_PUBLIC_USER                142 OPEN                           USERS                 TEMP                    
+ORDS_METADATA                   143 OPEN                           USERS                 TEMP                    
+HRREST                          149 OPEN                           USERS                 TEMP                    
+SH                              147 OPEN                           USERS                 TEMP                    
+XS$NULL                  2147483638 LOCKED            10/08/24     SYSTEM                TEMP                    
+LBACSYS                         129 LOCKED            19/08/24     SYSTEM                TEMP                    
+OUTLN                            13 LOCKED            19/08/24     SYSTEM                TEMP                    
+DBSNMP                           78 LOCKED            19/08/24     SYSAUX                TEMP                    
+APPQOSSYS                        79 LOCKED            19/08/24     SYSAUX                TEMP                    
+VECSYS                           17 LOCKED            19/08/24     SYSAUX                TEMP                    
+DBSFWUSER                        44 LOCKED            19/08/24     SYSAUX                TEMP                    
+GGSYS                            86 LOCKED            19/08/24     SYSAUX                TEMP                    
+ANONYMOUS                       102 LOCKED            19/08/24     SYSAUX                TEMP                    
+FLOWS_FILES                     134 LOCKED            19/08/24     SYSAUX                TEMP                    
+CTXSYS                          120 LOCKED            19/08/24     SYSAUX                TEMP                    
+
+USERNAME                        USER_ID ACCOUNT_STATUS    LOCK_DATE    DEFAULT_TABLESPACE    TEMPORARY_TABLESPACE    
+_________________________ _____________ _________________ ____________ _____________________ _______________________ 
+DVSYS                           1279990 LOCKED            19/08/24     SYSAUX                TEMP                    
+DVF                                 131 LOCKED            19/08/24     SYSAUX                TEMP                    
+APEX_240100                         133 LOCKED            19/08/24     SYSAUX                TEMP                    
+AUDSYS                                8 LOCKED            19/08/24     SYSAUX                TEMP                    
+GSMADMIN_INTERNAL                    25 LOCKED            19/08/24     SYSAUX                TEMP                    
+GGSHAREDCAP                          56 LOCKED            19/08/24     SYSAUX                TEMP                    
+OLAPSYS                             123 LOCKED            19/08/24     SYSAUX                TEMP                    
+MDSYS                               126 LOCKED            19/08/24     SYSAUX                TEMP                    
+XDB                                 101 LOCKED            19/08/24     SYSAUX                TEMP                    
+WMSYS                               110 LOCKED            19/08/24     SYSAUX                TEMP                    
+GSMCATUSER                           85 LOCKED            19/08/24     USERS                 TEMP                    
+MDDATA                              127 LOCKED            19/08/24     USERS                 TEMP                    
+SYSBACKUP                    2147483617 LOCKED            19/08/24     USERS                 TEMP                    
+REMOTE_SCHEDULER_AGENT               43 LOCKED            19/08/24     USERS                 TEMP                    
+GSMUSER                              26 LOCKED            19/08/24     USERS                 TEMP                    
+OJVMSYS                             118 LOCKED            19/08/24     USERS                 TEMP                    
+DIP                                  27 LOCKED            10/08/24     USERS                 TEMP                    
+SYSKM                        2147483619 LOCKED            19/08/24     USERS                 TEMP                    
+DGPDB_INT                            65 LOCKED            19/08/24     USERS                 TEMP                    
+SYS$UMF                              58 LOCKED            19/08/24     USERS                 TEMP                    
+SCOTT                               153 LOCKED            26/09/24     USERS                 TEMP                    
+SYSDG                        2147483618 LOCKED            19/08/24     USERS                 TEMP                    
+
+46 filas seleccionadas. 
+
+10.
+SQL> SELECT * FROM V$TABLESPACE;
+
+   TS# NAME        INCLUDED_IN_DATABASE_BACKUP    BIGFILE    FLASHBACK_ON    ENCRYPT_IN_BACKUP       CON_ID 
+______ ___________ ______________________________ __________ _______________ ____________________ _________ 
+     0 SYSTEM      YES                            YES        YES                                          3 
+     1 SYSAUX      YES                            YES        YES                                          3 
+     2 UNDOTBS1    YES                            YES        YES                                          3 
+     3 TEMP        NO                             NO         YES                                          3 
+     6 USERS       YES                            NO         YES                                          3 
+
+
+11.
+﻿
+SQL>  SELECT * FROM DBA_TABLESPACES;
+
+TABLESPACE_NAME       BLOCK_SIZE    INITIAL_EXTENT    NEXT_EXTENT    MIN_EXTENTS    MAX_EXTENTS      MAX_SIZE    PCT_INCREASE    MIN_EXTLEN STATUS    CONTENTS     LOGGING      FORCE_LOGGING    EXTENT_MANAGEMENT   ALLOCATION_TYPE    PLUGGED_IN    SEGMENT_SPACE_MANAGEMENT    DEF_TAB_COMPRESSION    RETENTION      BIGFILE    PREDICATE_EVALUATION    ENCRYPTED    COMPRESS_FOR    DEF_INMEMORY    DEF_INMEMORY_PRIORITY    DEF_INMEMORY_DISTRIBUTE    DEF_INMEMORY_COMPRESSION    DEF_INMEMORY_DUPLICATE    SHARED    DEF_INDEX_COMPRESSION    INDEX_COMPRESS_FOR    DEF_CELLMEMORY    DEF_INMEMORY_SERVICE    DEF_INMEMORY_SERVICE_NAME    LOST_WRITE_PROTECT    CHUNK_TABLESPACE    
+__________________ _____________ _________________ ______________ ______________ ______________ _____________ _______________ _____________ _________ ____________ ____________ ________________ ____________________ __________________ _____________ ___________________________ ______________________ ______________ __________ _______________________ ____________ _______________ _______________ ________________________ __________________________ ___________________________ _________________________ _________ ________________________ _____________________ _________________ _______________________ ____________________________ ______                                                                                           
+                                                                                           3645    2147483645                         65536 ONLINE    PERMANENT    LOGGING      YES              LOCAL                                                                                                        APPLY      YES        HOST                    NO                           DISABLED                                                                                                                                BLED                                                                                                              OFF                                                                                              
+                                                                                           3645    2147483645                         65536 ONLINE    PERMANENT    LOGGING      YES              LOCAL                                                                                                        APPLY      YES        HOST                    NO                           DISABLED                                                                                                                                BLED                                                                                                              OFF                                                                                              
+                                                                                           3645    2147483645                         65536 ONLINE    UNDO         LOGGING      NO               LOCAL                                                                                                        ARANTEE    YES        HOST                    NO                           DISABLED                                                                                                                                BLED                                                                                                              OFF                                                                                              
+                                                                                                   2147483645               0       1048576 ONLINE    TEMPORARY    NOLOGGING    NO               LOCAL                                                                                                        APPLY      NO         HOST                    NO                           DISABLED                                                                                                                                BLED                                                                                                              OFF                                                                                              
+                                                                                           3645    2147483645                         65536 ONLINE    PERMANENT    LOGGING      NO               LOCAL                                                                                                        APPLY      NO         HOST                    NO                           DISABLED                                                                                                                                BLED                                                                                                              OFF                                                                                              
+
+
+12.
+[oracle@localhost ~]$ sql GIISGBD101/clase@pokemon.uv.es:1521/orcl
+
+
+SQLcl: Versión 24.2 Production en mié. dic. 03 10:29:59 2025
+
+Copyright (c) 1982, 2025, Oracle. Todos los derechos reservados.
+
+Last Successful login time: Mié Dic 03 2025 10:30:00 +00:00
+
+Conectado a:
+Oracle Database 19c Enterprise Edition Release 19.0.0.0.0 - Production
+Version 19.3.0.0.0
+
+
+13.
+POKEMON =
+  (DESCRIPTION =
+    (ADDRESS = (PROTOCOL = TCP)(HOST = pokemon.uv.es)(PORT = 1521))
+    (CONNECT_DATA =
+      (SERVER = DEDICATED)
+      (SERVICE_NAME = orcl)
+    )
+  )
+
+
+[oracle@localhost ~]$ sql GIISGBD101/clase@POKEMON
+
+
+SQLcl: Versión 24.2 Production en mié. dic. 03 11:02:33 2025
+
+Copyright (c) 1982, 2025, Oracle. Todos los derechos reservados.
+
+Last Successful login time: Mié Dic 03 2025 11:02:37 +00:00
+
+Conectado a:
+Oracle Database 19c Enterprise Edition Release 19.0.0.0.0 - Production
+Version 19.3.0.0.0
+
+
+
+14.
+SQL> CREATE TABLESPACE TBS_01 DATAFILE '/opt/oracle/oradata/FREE/tbs_f01.dbf' SIZE 10M AUTOEXTEND OFF;
+
+TABLESPACE TBS_01 creado.
+
+15.
+SQL> DROP TABLESPACE TBS_01;
+
+TABLESPACE TBS_01 borrado.
+
+
+[oracle@localhost ~]$  rm /opt/oracle/oradata/FREE/tbs_f01.dbf
+
+16.
+
+SQL> CREATE USER u01 IDENTIFIED BY u01
+  2   DEFAULT TABLESPACE users
+  3*  TEMPORARY TABLESPACE temp;
+
+User U01 creado.
+SQL> ALTER USER u01 QUOTA 100M ON users;
+
+User U01 alterado.
+
+
+17.
+SQL> ALTER USER u01 IDENTIFIED BY pass;
+
+User U01 alterado.
+
+18.
+SQL> ALTER USER u01 ACCOUNT LOCK;
+
+User U01 alterado.
+
+SQL> SELECT username, account_status
+  2  FROM DBA_USERS
+  3* WHERE username = 'U01';
+
+USERNAME    ACCOUNT_STATUS    
+___________ _________________ 
+U01         LOCKED   
+
+SQL> ALTER USER u01 ACCOUNT UNLOCK;
+
+User U01 alterado.
+
+SQL>  SELECT username, account_status
+  2  FROM DBA_USERS
+  3* WHERE username = 'U01';
+
+USERNAME    ACCOUNT_STATUS    
+___________ _________________ 
+U01         OPEN  
+
+19.
+SQL> DROP USER u01 CASCADE;
+User U01 borrado.
+
+
+20.
+SQL> ALTER 01 SCOTT ACCOUNT UNLOCK;
+
+User SCOTT alterado.
+
+[oracle@localhost ~]$ sql scott/tiger
+
+
+SQLcl: Versión 24.2 Production en mié. dic. 03 11:43:11 2025
+
+Copyright (c) 1982, 2025, Oracle. Todos los derechos reservados.
+
+Conectado a:
+Oracle Database 23ai Free Release 23.0.0.0.0 - Develop, Learn, and Run for Free
+Version 23.5.0.24.07
+
+
+
+21.
+SQL> GRANT select ON v_$database TO scott;
+
+Grant correcto.
+[oracle@localhost ~]$ sql scott/tiger
+
+
+SQLcl: Versión 24.2 Production en mié. dic. 03 11:45:59 2025
+
+Copyright (c) 1982, 2025, Oracle. Todos los derechos reservados.
+
+Conectado a:
+Oracle Database 23ai Free Release 23.0.0.0.0 - Develop, Learn, and Run for Free
+Version 23.5.0.24.07
+
+SQL> SELECT * FROM v$database;
+
+         DBID NAME    CREATED        RESETLOGS_CHANGE# RESETLOGS_TIME       PRIOR_RESETLOGS_CHANGE# PRIOR_RESETLOGS_TIME    LOG_MODE           CHECKPOINT_CHANGE#    ARCHIVE_CHANGE# CONTROLFILE_TYPE    CONTROLFILE_CREATED       CONTROLFILE_SEQUENCE#    CONTROLFILE_CHANGE# CONTROLFILE_TIME    OPEN_RESETLOGS    VERSION_TIME    OPEN_MODE     PROTECTION_MODE        PROTECTION_LEVEL    REMOTE_ARCHIVE       ACTIVATION#    SWITCHOVER# DATABASE_ROLE       ARCHIVELOG_CHANGE# ARCHIVELOG_COMPRESSION    SWITCHOVER_STATUS    DATAGUARD_BROKER    GUARD_STATUS    SUPPLEMENTAL_LOG_DATA_MIN    SUPPLEMENTAL_LOG_DATA_PK    SUPPLEMENTAL_LOG_DATA_UI    FORCE_LOGGING       PLATFORM_ID PLATFORM_NAME          RECOVERY_TARGET_INCARNATION#    LAST_OPEN_INCARNATION#    CURRENT_SCN FLASHBACK_ON    SUPPLEMENTAL_LOG_DATA_FK    SUPPLEMENTAL_LOG_DATA_ALL    DB_UNIQUE_NAME       STANDBY_BECAME_PRIMARY_SCN FS_FAILOVER_MODE    FS_FAILOVER_STATUS    FS_FAILOVER_CURRENT_TARGET       FS_FAILOVER_THRESHOLD FS_FAILOVER_OBSERVER_PRESENT    FS_FAILOVER_OBSERVER_HOST    CONTROLFILE_CONVERTED    PRIMARY_DB_UNIQUE_NAME    SUPPLEMENTAL_LOG_DATA_PL       MIN_REQUIRED_CAPTURE_CHANGE# CDB       CON_ID PENDING_ROLE_CHANGE_TASKS         CON_DBID FORCE_FULL_DB_CACHING    SUPPLEMENTAL_LOG_DATA_SR    GOLDENGATE_BLOCKING_MODE    
+_____________ _______ ___________ ____________________ _________________ __________________________ _______________________ _______________ _____________________ __________________ ___________________ ______________________ ________________________ ______________________ ___________________ _________________ _______________ _____________ ______________________ ___________________ _________________ ______________ ______________ ________________ _____________________ _________________________ ____________________ ___________________ _______________ ____________________________ ___________________________ ___________________________ ________________ ______________ ___________________ _______________________________ _________________________ ______________ _______________ ___________________________ ____________________________ _________________ _____________________________ ___________________ _____________________ _____________________________ ________________________ _______________________________ ____________________________ ________________________ _________________________ ___________________________ _______________________________ ______ _________ ____________________________ _____________ ________________________ ___________________________ ___________________________ 
+   1449476999 FREE    19/08/24                 2047079 19/08/24                                   1 10/08/24                NOARCHIVELOG                303491128            2125744 CURRENT             19/08/24                                   1462              303507360 03/12/25            NOT ALLOWED       19/08/24        READ WRITE    MAXIMUM PERFORMANCE    UNPROTECTED         ENABLED               1449492103     1449492103 PRIMARY                              0 DISABLED                  NOT ALLOWED          DISABLED            NONE            NO                           NO                          NO                          NO                           13 Linux x86 64-bit                                  2                         2      303507368 NO              NO                          NO                           FREE                                          0 DISABLED            DISABLED                                                                   0                                                              NO                                                 NO                                                          YES            0 NOT APPLICABLE                  1268421247 NO                       NO                          DISABLED                    
+
+SQL> SELECT * FROM v_$database;
+
+Error que empieza en la línea: 1 del comando -
+SELECT * FROM v_$database
+Error en la línea de comandos : 1 Columna : 15
+Informe de error -
+Error SQL: ORA-00942: La tabla o vista  "SCOTT"."V_$DATABASE" no
+existe
+Ayuda: https://docs.oracle.com/error-help/db/ora-00942/
+00942. 00000 -  "table or view%s does not exist"
+*Cause:    The specified table or view did not exist, or a synonym
+           pointed to a table or view that did not exist.
+           To find existing user tables and views, query the
+           ALL_TABLES and ALL_VIEWS data dictionary views. Certain
+           privileges may be required to access the table. If an
+           application returned this message, then the table that the
+           application tried to access did not exist in the database, or
+           the application did not have access to it.
+*Action:   Check each of the following
+           - The spelling of the table or view name is correct.
+           - The referenced table or view name does exist.
+           - The synonym points to an existing table or view.
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00942/
+
+
+SQL> SELECT * FROM sys.v_$database;
+
+         DBID NAME    CREATED        RESETLOGS_CHANGE# RESETLOGS_TIME       PRIOR_RESETLOGS_CHANGE# PRIOR_RESETLOGS_TIME    LOG_MODE           CHECKPOINT_CHANGE#    ARCHIVE_CHANGE# CONTROLFILE_TYPE    CONTROLFILE_CREATED       CONTROLFILE_SEQUENCE#    CONTROLFILE_CHANGE# CONTROLFILE_TIME    OPEN_RESETLOGS    VERSION_TIME    OPEN_MODE     PROTECTION_MODE        PROTECTION_LEVEL    REMOTE_ARCHIVE       ACTIVATION#    SWITCHOVER# DATABASE_ROLE       ARCHIVELOG_CHANGE# ARCHIVELOG_COMPRESSION    SWITCHOVER_STATUS    DATAGUARD_BROKER    GUARD_STATUS    SUPPLEMENTAL_LOG_DATA_MIN    SUPPLEMENTAL_LOG_DATA_PK    SUPPLEMENTAL_LOG_DATA_UI    FORCE_LOGGING       PLATFORM_ID PLATFORM_NAME          RECOVERY_TARGET_INCARNATION#    LAST_OPEN_INCARNATION#    CURRENT_SCN FLASHBACK_ON    SUPPLEMENTAL_LOG_DATA_FK    SUPPLEMENTAL_LOG_DATA_ALL    DB_UNIQUE_NAME       STANDBY_BECAME_PRIMARY_SCN FS_FAILOVER_MODE    FS_FAILOVER_STATUS    FS_FAILOVER_CURRENT_TARGET       FS_FAILOVER_THRESHOLD FS_FAILOVER_OBSERVER_PRESENT    FS_FAILOVER_OBSERVER_HOST    CONTROLFILE_CONVERTED    PRIMARY_DB_UNIQUE_NAME    SUPPLEMENTAL_LOG_DATA_PL       MIN_REQUIRED_CAPTURE_CHANGE# CDB       CON_ID PENDING_ROLE_CHANGE_TASKS         CON_DBID FORCE_FULL_DB_CACHING    SUPPLEMENTAL_LOG_DATA_SR    GOLDENGATE_BLOCKING_MODE    
+_____________ _______ ___________ ____________________ _________________ __________________________ _______________________ _______________ _____________________ __________________ ___________________ ______________________ ________________________ ______________________ ___________________ _________________ _______________ _____________ ______________________ ___________________ _________________ ______________ ______________ ________________ _____________________ _________________________ ____________________ ___________________ _______________ ____________________________ ___________________________ ___________________________ ________________ ______________ ___________________ _______________________________ _________________________ ______________ _______________ ___________________________ ____________________________ _________________ _____________________________ ___________________ _____________________ _____________________________ ________________________ _______________________________ ____________________________ ________________________ _________________________ ___________________________ _______________________________ ______ _________ ____________________________ _____________ ________________________ ___________________________ ___________________________ 
+   1449476999 FREE    19/08/24                 2047079 19/08/24                                   1 10/08/24                NOARCHIVELOG                303491128            2125744 CURRENT             19/08/24                                   1463              303507383 03/12/25            NOT ALLOWED       19/08/24        READ WRITE    MAXIMUM PERFORMANCE    UNPROTECTED         ENABLED               1449492103     1449492103 PRIMARY                              0 DISABLED                  NOT ALLOWED          DISABLED            NONE            NO                           NO                          NO                          NO                           13 Linux x86 64-bit                                  2                         2      303507395 NO              NO                          NO                           FREE                                          0 DISABLED            DISABLED                                                                   0                                                              NO                                                 NO                                                          YES            0 NOT APPLICABLE                  1268421247 NO                       NO                          DISABLED                    
+
+
+22.
+SQL> CREATE ROLE developer;
+
+Role DEVELOPER creado.
+
+SQL> GRANT CONNECT, CREATE TABLE, CREATE VIEW,
+  2* CREATE ANY INDEX TO developer;
+
+Grant correcto.
+
+23.
+SQL> GRANT developer TO scott;
+
+Grant correcto.
+SQL> SELECT * FROM DBA_ROLE_PRIVS
+  2* WHERE GRANTEE = 'SCOTT'; 
+
+GRANTEE    GRANTED_ROLE    ADMIN_OPTION    DELEGATE_OPTION    DEFAULT_ROLE    COMMON    INHERITED    
+__________ _______________ _______________ __________________ _______________ _________ ____________ 
+SCOTT      RESOURCE        NO              NO                 YES             NO        NO           
+SCOTT      DEVELOPER       NO              NO                 YES             NO        NO           
+SCOTT      CONNECT         NO              NO                 YES             NO        NO           
+
+SQL> ALTER USER scott DEFAULT ROLE ALL;
+
+User SCOTT alterado.
+
+
+
+24.
+
+SQL> CREATE SEQUENCE MY_SEQ;
+
+Sequence MY_SEQ creado.
+
+SQL> SELECT MY_SEQ.CURRVAL FROM DUAL;
+
+Error que empieza en la línea: 1 del comando -
+SELECT MY_SEQ.CURRVAL FROM DUAL
+Error en la línea de comandos : 1 Columna : 8
+Informe de error -
+Error SQL: ORA-08002: La secuencia MY_SEQ.CURRVAL todavía no se ha
+definido en esta sesión.
+Ayuda: https://docs.oracle.com/error-help/db/ora-08002/
+08002. 00000 -  "Sequence %s.CURRVAL is not yet defined in this session."
+*Cause:    Sequence CURRVAL was selected before sequence NEXTVAL.
+*Action:   Select NEXTVAL from the sequence before selecting CURRVAL.
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-08002/
+
+SQL> SELECT MY_SEQ.NEXTVAL FROM DUAL;
+
+   NEXTVAL 
+__________ 
+         1 
+
+SQL> SELECT MY_SEQ.CURRVAL FROM DUAL;
+
+   CURRVAL 
+__________ 
+         1 
+
+SQL> SELECT MY_SEQ.NEXTVAL FROM DUAL;
+
+   NEXTVAL 
+__________ 
+         2 
+
+SQL> DROP SEQUENCE MY_SEQ;
+
+Sequence MY_SEQ borrado.
+
+
+
+
+
+PARTE 2
+
+[oracle@localhost ~]$ sql system/oracle as sysdba
+
+
+SQLcl: Versión 24.2 Production en dom. dic. 14 17:07:39 2025
+
+Copyright (c) 1982, 2025, Oracle. Todos los derechos reservados.
+
+Conectado a:
+Oracle Database 23ai Free Release 23.0.0.0.0 - Develop, Learn, and Run for Free
+Version 23.5.0.24.07
+
+Creamos el tablespace 1 (sys)
+SQL> CREATE TABLESPACE TBS_01 DATAFILE '/opt/oracle/oradata/FREE/tbs_01.dbf' SIZE 100 M AUTOEXTEND OFF;
+
+TABLESPACE TBS_01 creado.
+
+Creamos el tablespace 2 (sys)
+SQL> CREATE TABLESPACE TBS_02 DATAFILE '/opt/oracle/oradata/FREE/tbs_02.dbf' SIZE 100 M AUTOEXTEND OFF;
+
+TABLESPACE TBS_02 creado.
+
+CREAMOS EL USUARIO ejercicio (sys)
+
+SQL> CREATE USER ejercicio IDENTIFIED BY ej01 DEFAULT TABLESPACE TBS_01 TEMPORARY TABLESPACE temp;
+
+User EJERCICIO creado.
+
+Le damos permiso para crear objetos (sys)
+SQL> GRANT RESOURCE TO ejercicio;
+
+Grant correcto.
+
+Le damos permiso para conectarse a la base de datos (sys)
+SQL> GRANT CONNECT TO ejercicio;
+
+Grant correcto.
+
+Le damos permiso dba (sys)
+SQL> GRANT DBA TO ejercicio;
+
+Grant correcto.
+
+Creamos el DBLink  (ejercicio)
+SQL> CREATE DATABASE LINK DBLink_ej CONNECT TO GIISGBD104 IDENTIFIED BY clase USING 'POKEMON';
+
+Database link DBLINK_EJ creado.
+
+
+Creamos la tabla paises(ejercicio)
+SQL> CREATE TABLE PAISES(ID_PAIS NUMBER, NOMBRE VARCHAR2(64) NOT NULL, CONTINENTE VARCHAR2(64) NOT NULL,CAPITAL VARCHAR2(64) NOT NULL, constraint PAISES_PK PRIMARY KEY(ID_PAIS) USING INDEX TABLESPACE TBS_02)tablespace TBS_01;
+
+Table PAISES creado.
+
+Creamos la tabla montes(ejercicio)
+SQL> CREATE TABLE MONTES(ID_MONTE NUMBER, NOMBRE VARCHAR2(64)NOT NULL, ALTURA VARCHAR2(64) NOT NULL,PAIS NUMBER NOT NULL, constraint MONTE_PK PRIMARY KEY(ID_MONTE) USING INDEX TABLESPACE TBS_02, constraint PAISES_FK FOREIGN KEY (PAIS)REFERENCES PAISES(ID_PAIS))tablespace TBS_01;
+
+Table MONTES creado.
+
+Creamos el index para el camp ALTURA de la tabla MONTES(ejercicio)
+SQL> CREATE INDEX monte_idx ON MONTES(ALTURA) TABLESPACE TBS_02;
+
+Index MONTE_IDX creado.
+
+INSERTAMOS LOS PAISES (ejercicio)
+SQL> INSERT INTO PAISES(ID_PAIS,NOMBRE,CONTINENTE ,CAPITAL) SELECT id_pais, nombre, continente, capital FROM PAISES@DBLINK_EJ;
+
+5 filas insertadas.
+
+CREAMOS LA SECUENCIA(ejercicio)
+
+SQL> CREATE SEQUENCE SECUENCIA_EJ START WITH 1 INCREMENT BY 1;
+
+Sequence SECUENCIA_EJ creado.
+
+SQL> INSERT INTO MONTES(ID_MONTE, NOMBRE,ALTURA,PAIS)VALUES (SECUENCIA_EJ.NEXTVAL,'MONTE1','123',1);
+
+1 fila insertadas.
+
+SQL> INSERT INTO MONTES(ID_MONTE, NOMBRE,ALTURA,PAIS)VALUES (SECUENCIA_EJ.NEXTVAL,'MONTE2','456',2);
+
+1 fila insertadas.
+
+SQL> INSERT INTO MONTES(ID_MONTE, NOMBRE,ALTURA,PAIS)VALUES (SECUENCIA_EJ.NEXTVAL,'MONTE3','789',3);
+
+1 fila insertadas.
+
+Crear trigger (ejercicio)
+SQL> CREATE OR REPLACE TRIGGER trg_montes_id
+  BEFORE INSERT ON MONTES
+  FOR EACH ROW
+  BEGIN
+ 	:NEW.ID_MONTE := SECUENCIA_EJ.NEXTVAL;
+  END;/
+
+Trigger TRG_MONTES_ID compilado
+
+
+Crear un rol que tinga privilegis de lectura sobre les taules PAISES i MONTES (sys)
+SQL> CREATE ROLE rol_lectura; 
+
+Role ROL_LECTURA creado.
+
+SQL> GRANT SELECT ON EJERCICIO.MONTES TO rol_lectura;
+
+Grant correcto.
+
+SQL> GRANT SELECT ON EJERCICIO.PAISES TO rol_lectura;
+
+Grant correcto.
+
+SQL> SET ROLE rol_lectura;
+
+Role ROL_LECTURA correcto.
+
+
+Crear un nou usuari només amb privilegis de connexió a la base de dades. (sys)
+
+SQL> CREATE USER ejercicio2 IDENTIFIED BY EJ02 TEMPORARY TABLESPACE TEMP;
+
+User EJERCICIO2 creado.
+
+SQL> GRANT CREATE SESSION TO ejercicio2;
+
+Grant correcto.
+
+
+Otorgar a l’usuari el rol creat abans. (sys)
+SQL> GRANT rol_lectura TO ejercicio2;
+
+Grant correcto.
+
+
+Comprobamos que los roles funcionan (ejercicio2)
+Iniciar sesion:
+[oracle@localhost ~]$ sql ejercicio2/EJ02
+
+
+SQLcl: Versión 24.2 Production en dom. dic. 14 18:48:08 2025
+
+Copyright (c) 1982, 2025, Oracle. Todos los derechos reservados.
+
+Conectado a:
+Oracle Database 23ai Free Release 23.0.0.0.0 - Develop, Learn, and Run for Free
+Version 23.5.0.24.07
+
+
+Probar select  (ejercicio2)
+SQL> SELECT * FROM EJERCICIO.MONTES;
+
+   ID_MONTE NOMBRE    ALTURA       PAIS 
+___________ _________ _________ _______ 
+          1 MONTE1    123             1 
+          2 MONTE2    456             2 
+          3 MONTE3    789             3 
+
+SQL> SELECT * FROM EJERCICIO.PAISES;
+
+   ID_PAIS NOMBRE      CONTINENTE    CAPITAL           
+__________ ___________ _____________ _________________ 
+         1 España      Europa        Madrid            
+         2 Francia     Europa        París             
+         3 Alemania    Europa        Berlín            
+         4 Uruguay     América       Montevideo        
+         5 Brasil      América       Río de Janeiro
+
+
+Probar insert  (ejercicio2)
+SQL> INSERT INTO EJERCICIO.MONTES(ID_MONTE, NOMBRE, ALTURA, PAIS) VALUES (SECUENCIA_EJ.NEXTVAL,'MONTE4','135',4);
+
+Error que empieza en la línea: 1 del comando -
+INSERT INTO EJERCICIO.MONTES(SECUENCIA_EJ.NEXTVAL,'MONTE4','135',4);
+Error en la línea de comandos : 1 Columna : 23
+Informe de error -
+Error SQL: ORA-41900: Falta el privilegio INSERT en "EJERCICIO"."MONTES"
+Ayuda: https://docs.oracle.com/error-help/db/ora-41900/
+41900. 00000 -  "missing %s privilege on \"%s\".\"%s\""
+*Cause:    An attempt was made to operate on an object for which the user did
+           not have the required privilege.
+*Action:   Perform the action after acquiring the required privileges.
+*Params:   1) privilege
+           2) owner_name: The name of the owner.
+           3) object_name: The name of the object.
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-41900/
+
+Consultar el diccionario (sys)
+TABLAS
+SQL> SELECT table_name, tablespace_name, status
+  FROM dba_tables
+  WHERE owner = 'EJERCICIO';
+
+TABLE_NAME    TABLESPACE_NAME    STATUS    
+_____________ __________________ _________ 
+PAISES        TBS_01             VALID     
+MONTES        TBS_01             VALID 
+
+ÍNDICES
+SQL> SELECT index_name, table_name, tablespace_name, status
+  FROM dba_indexes
+  WHERE owner = 'EJERCICIO';
+
+INDEX_NAME    TABLE_NAME    TABLESPACE_NAME    STATUS    
+_____________ _____________ __________________ _________ 
+PAISES_PK     PAISES        TBS_02             VALID     
+MONTE_PK      MONTES        TBS_02             VALID     
+MONTE_IDX     MONTES        TBS_02             VALID 
+
+TRIGGERS 
+ SQL> SELECT trigger_name, table_name, status
+  2  FROM dba_triggers
+  3* WHERE owner = 'EJERCICIO';
+
+TRIGGER_NAME     TABLE_NAME    STATUS     
+________________ _____________ __________ 
+TRG_MONTES_ID    MONTES        ENABLED    
+
+
+Consultar els privilegis del segon usuari (sys)
+PRIVILEGIOS DE SYS
+SQL> SELECT privilege, admin_option
+  FROM dba_sys_privs
+   WHERE grantee = 'EJERCICIO2';
+
+PRIVILEGE         ADMIN_OPTION    
+_________________ _______________ 
+CREATE SESSION    NO  
+
+
+Consultar els rols que te otorgats el segon usuari. (sys)
+	SQL> SELECT granted_role, admin_option, default_role
+  FROM dba_role_privs
+  WHERE grantee = 'EJERCICIO2';
+
+GRANTED_ROLE    ADMIN_OPTION    DEFAULT_ROLE    
+_______________ _______________ _______________ 
+ROL_LECTURA     NO              YES  
+
+
+Verificar que els nous tablespaces estan a la base de dades.(sys)
+SQL> SELECT tablespace_name, status, contents, extent_management
+  FROM dba_tablespaces
+  WHERE tablespace_name IN ('TBS_01','TBS_02');
+
+TABLESPACE_NAME    STATUS    CONTENTS     EXTENT_MANAGEMENT    
+__________________ _________ ____________ ____________________ 
+TBS_01             ONLINE    PERMANENT    LOCAL                
+TBS_02             ONLINE    PERMANENT    LOCAL 
+
+Obtindre les característiques dels 2 usuaris creades.(sys)
+EJERCICIO
+SQL> SELECT username, account_status, default_tablespace, temporary_tablespace, created
+  FROM dba_users
+  WHERE username = 'EJERCICIO';
+
+USERNAME     ACCOUNT_STATUS    DEFAULT_TABLESPACE    TEMPORARY_TABLESPACE    CREATED     
+____________ _________________ _____________________ _______________________ ___________ 
+EJERCICIO    OPEN              TBS_01                TEMP                    14/12/25 
+
+EJERCIOCIO2
+SQL> SELECT username, account_status, default_tablespace, temporary_tablespace, created
+  FROM dba_users
+  WHERE username = 'EJERCICIO2';
+
+USERNAME      ACCOUNT_STATUS    DEFAULT_TABLESPACE    TEMPORARY_TABLESPACE    CREATED     
+_____________ _________________ _____________________ _______________________ ___________ 
+EJERCICIO2    OPEN              USERS                 TEMP                    14/12/25
+
+
+
+
+
+
+
+
